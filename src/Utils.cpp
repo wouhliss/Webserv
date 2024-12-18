@@ -1,8 +1,12 @@
-# include "../inc/Utils.hpp"
+# include "../inc/utils.hpp"
 
-std::string	Utils::trimSpaces(std::string s)
+std::string utils::trimSpaces(std::string s)
 {
-	s = s.substr(s.find_first_not_of(" \t"));
-	s = s.substr(0, s.find_last_not_of(" \t") + 1);
-	return (s);
+    size_t start = s.find_first_not_of(" \t");
+    if (start == std::string::npos) {
+        // The string is entirely whitespace or empty
+        return "";
+    }
+    size_t end = s.find_last_not_of(" \t");
+    return s.substr(start, end - start + 1);
 }

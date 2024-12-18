@@ -3,7 +3,7 @@
 
 # include "../inc/includes.hpp"
 
-namespace Utils
+namespace utils
 {
 	std::string	trimSpaces(std::string s);
 }

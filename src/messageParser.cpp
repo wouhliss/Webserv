@@ -21,9 +21,9 @@ Message	messageParser::parseMessage(std::string flux)
 		if (line.find(":") == std::string::npos)
 			throw std::runtime_error("Error: invalid header");
 		key = line.substr(0, line.find_first_of(":"));
-		key = Utils::trimSpaces(key);
+		key = utils::trimSpaces(key);
 		value = line.substr(line.find_first_of(":") + 1);
-		value = Utils::trimSpaces(value);
+		value = utils::trimSpaces(value);
 		message.addHeader(key, value);
 	}
 	message.setBody(flux.substr(flux.find("\r\n\r\n") + 4));
@@ -41,15 +41,15 @@ void	messageParser::parseRequestLine(std::string line, Message &message)
 	if ((pos = line.find(" ")) == std::string::npos)
 		throw std::runtime_error("Error: invalid request line");
 	method = line.substr(0, pos);
-	method = Utils::trimSpaces(method);
+	method = utils::trimSpaces(method);
 	line.erase(0, pos + 1);
 	if ((pos = line.find(" ")) == std::string::npos)
 		throw std::runtime_error("Error: invalid request line");
 	request_target = line.substr(0, pos);
-	request_target = Utils::trimSpaces(request_target);
+	request_target = utils::trimSpaces(request_target);
 	line.erase(0, pos + 1);
 	http_version = line;
-	http_version = Utils::trimSpaces(http_version);
+	http_version = utils::trimSpaces(http_version);
 
 	//Have to verify here that informations are correct
 	message.setType(REQUEST);

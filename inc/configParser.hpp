@@ -4,7 +4,7 @@
 # include "../inc/includes.hpp"
 # include "../inc/ConfigServer.hpp"
 # include "../inc/Location.hpp"
-# include "../inc/Utils.hpp"
+# include "../inc/utils.hpp"
 
 namespace configParser
 {

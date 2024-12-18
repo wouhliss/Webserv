@@ -3,7 +3,7 @@
 std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 {
 	std::vector<ConfigServer> 	servers;
-	std::ifstream				infile(filename);
+	std::ifstream				infile(filename.c_str());
 	std::string					line;
 	ConfigServer				current_server;
 	configParser::ParserBlock	parser_position;
@@ -17,8 +17,9 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 	parser_position.location = false;
 
 	while (std::getline(infile, line)) {
+		
 		//We remove the leading and trailing whitespaces
-		line = Utils::trimSpaces(line);
+		line = utils::trimSpaces(line);
 
 		//We skip empty lines and comments
 		if (line.empty() || line[0] == '#')
@@ -35,13 +36,10 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 			continue;
 		}
 
-		if (line == "error:") {
+		if (line == "error_pages:") {
 			if (parser_position.server == false)
 				throw std::runtime_error("Error: error block outside of server block");
-			else if (parser_position.error == true)
-				throw std::runtime_error("Error: error block inside of error block");
-			else if (parser_position.location == true)
-				throw std::runtime_error("Error: error block inside of location block");
+			parser_position.location = false;
 			parser_position.error = true;
 			continue;
 		}
@@ -49,11 +47,8 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 		if (line == "location:") {
 			if (parser_position.server == false)
 				throw std::runtime_error("Error: location block outside of server block");
-			else if (parser_position.error == true)
-				throw std::runtime_error("Error: location block inside of error block");
-			else if (parser_position.location == true)
-				throw std::runtime_error("Error: location block inside of location block");
 			parser_position.location = true;
+			parser_position.error = false;
 			servers.back().addLocation(); //we create a new location for this block
 			continue;
 		}
@@ -64,7 +59,6 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 		configParser::parseLine(line, servers.back(), parser_position);
 	}
 
-	
 	configParser::checkConfig(servers);
 	infile.close();
 	return (servers);
@@ -77,13 +71,12 @@ void	configParser::parseLine(std::string line, ConfigServer &current_server, con
 
 	//get key and value
 	key = line.substr(0, line.find_first_of(":"));
-	key = Utils::trimSpaces(key);
+	key = utils::trimSpaces(key);
 	value = line.substr(line.find_first_of(":") + 1);
-	value = Utils::trimSpaces(value);
+	value = utils::trimSpaces(value);
 
 	if (value.empty())
 		throw std::runtime_error("Error: no value for key");
-
 	if (parser_position.error == true && parser_position.location == false)
 		current_server.setErrorPages(std::stoi(key), value);
 	else if (parser_position.location == true)

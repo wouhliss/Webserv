@@ -1,0 +1,7 @@
+- Parsing config file : 
+	- Add better protection guards between blocks : 
+		- either with { }
+		- or with proper identation formatting 
+
+
+- See if we need a basic sig handler

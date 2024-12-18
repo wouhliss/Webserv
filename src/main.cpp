@@ -21,7 +21,7 @@ int		main(int argc, char **argv)
 	if (argc == 2)
 		filename = argv[1];
 	else if (argc == 1)
-		filename = "config/default.conf";
+		filename = "configfiles/default.conf";
 	else {
 		std::cerr << "Error: too many arguments" << std::endl;
 		return (EXIT_FAILURE);
@@ -41,5 +41,10 @@ int		main(int argc, char **argv)
 		std::cerr << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
+
+	//On affiche des infos sur les serveurs
+
+	//On itere sur le vector de ConfigServer, on instantie chaque nouveau Server avec sa config puis on le lance
+
 	return (EXIT_SUCCESS);
 }
