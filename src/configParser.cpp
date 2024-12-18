@@ -8,6 +8,8 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 	ConfigServer				current_server;
 	configParser::ParserBlock	parser_position;
 
+	std::cout << BLUE << "Parsing config file: " << filename << std::endl << RESET;
+
 	if (!infile.is_open())
 		throw std::domain_error("Error: could not open file");
 
@@ -61,6 +63,9 @@ std::vector<ConfigServer> configParser::parseConfigFile(std::string filename)
 
 	configParser::checkConfig(servers);
 	infile.close();
+
+	std::cout << BLUE << "Config file parsed successfully" << std::endl << RESET;
+
 	return (servers);
 }
 
@@ -76,7 +81,7 @@ void	configParser::parseLine(std::string line, ConfigServer &current_server, con
 	value = utils::trimSpaces(value);
 
 	if (value.empty())
-		throw std::runtime_error("Error: no value for key");
+		throw std::runtime_error("Error: unknown key");
 	if (parser_position.error == true && parser_position.location == false)
 		current_server.setErrorPages(std::stoi(key), value);
 	else if (parser_position.location == true)

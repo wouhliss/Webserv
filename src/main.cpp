@@ -21,15 +21,18 @@ int		main(int argc, char **argv)
 	if (argc == 2)
 		filename = argv[1];
 	else if (argc == 1)
+	{
 		filename = "configfiles/default.conf";
+		std::cout << YELLOW << "No config file specified, using default config file 'configfiles/default.conf'" << std::endl << RESET;
+	}
 	else {
-		std::cerr << "Error: too many arguments" << std::endl;
+		std::cerr << RED << "Error: too many arguments" << std::endl << RESET;
 		return (EXIT_FAILURE);
 	}
 
 	//check config file extension
 	if (!check_extension(filename)) {
-		std::cerr << "Error: invalid file extension" << std::endl;
+		std::cerr << RED << "Error: invalid file extension" << std::endl << RESET;
 		return (EXIT_FAILURE);
 	}
 
@@ -38,7 +41,7 @@ int		main(int argc, char **argv)
 		std::vector<ConfigServer> servers = configParser::parseConfigFile(filename);
 	}
 	catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << RED << "Exception caught: " << e.what() << std::endl << RESET;
 		return (EXIT_FAILURE);
 	}
 
