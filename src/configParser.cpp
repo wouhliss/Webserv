@@ -94,17 +94,17 @@ void	configParser::parseLine(std::string line, ConfigServer &current_server, con
 
 void	configParser::parseServerBlock(std::string key, std::string value, ConfigServer &current_server)
 {
-	if (key == "hostname")
-		current_server.setHostname(value);
+	if (key == "hostaddr")
+		current_server.setHostaddr(value);
 	else if (key == "port")
 		current_server.setPort(value);
 	else if (key == "server_name")
 		current_server.setServerName(value);
 	else if (key == "max_body_size")
 		current_server.setMaxBodySize(value);
-	else if (key == "root")
+	else if (key == "root_directory")
 		current_server.setRoot(value);
-	else if (key == "default_file")
+	else if (key == "entry_file")
 		current_server.setDefaultFile(value);
 	else
 		throw std::runtime_error("Error: invalid key in server block");
@@ -120,7 +120,7 @@ void	configParser::parseLocationBlock(std::string key, std::string value, Config
 		loc.setAllowedMethods(value);
 	else if (key == "redirects")
 		loc.setRedirects(value);
-	else if (key == "directory_listing")
+	else if (key == "allow_directory_listing")
 		loc.setDirectoryListing(value);
 	else
 		throw std::runtime_error("Error: invalid key in location block");

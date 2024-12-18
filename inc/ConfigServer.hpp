@@ -12,7 +12,7 @@ class ConfigServer
 {
 	private:
 		//Private attributes
-		string				_hostname;
+		string				_hostaddr;
 		size_t				_port;
 		string 				_server_name;
 		size_t				_max_body_size;
@@ -31,7 +31,7 @@ class ConfigServer
 		ConfigServer& operator=(const ConfigServer &copy);
 
 		//Getters and Setters
-		void	setHostname(string &s);
+		void	setHostaddr(string &s);
 		void	setPort(string &s);
 		void	setServerName(string &s);
 		void	setMaxBodySize(string &s);
@@ -44,7 +44,7 @@ class ConfigServer
 		void	addLocation();
 		void	updateLastLocation(Location &loc);
 
-		string&				getHostname();
+		string&				getHostaddr();
 		size_t&				getPort();
 		string&				getServerName();
 		size_t&				getSize();

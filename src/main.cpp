@@ -17,6 +17,7 @@ int		main(int argc, char **argv)
 {
 	std::string	filename;
 
+	//check arguments
 	if (argc == 2)
 		filename = argv[1];
 	else if (argc == 1)
@@ -26,11 +27,13 @@ int		main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	//check config file extension
 	if (!check_extension(filename)) {
 		std::cerr << "Error: invalid file extension" << std::endl;
 		return (EXIT_FAILURE);
 	}
 
+	//load and parse config file
 	try {
 		std::vector<ConfigServer> servers = configParser::parseConfigFile(filename);
 	}

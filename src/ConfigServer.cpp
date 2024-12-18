@@ -4,7 +4,7 @@
 
 ConfigServer::ConfigServer()
 {
-	_hostname = "";
+	_hostaddr = "";
 	_port = 0;
 	_server_name = "";
 	_max_body_size = 0;
@@ -25,7 +25,7 @@ ConfigServer& ConfigServer::operator=(const ConfigServer &copy)
 {
 	if (this == &copy)
 		return (*this);
-	_hostname = copy._hostname;
+	_hostaddr = copy._hostaddr;
 	_port = copy._port;
 	_server_name = copy._server_name;
 	_max_body_size = copy._max_body_size;
@@ -39,9 +39,9 @@ ConfigServer& ConfigServer::operator=(const ConfigServer &copy)
 
 //Getters and Setters
 
-void	ConfigServer::setHostname(string &s)
+void	ConfigServer::setHostaddr(string &s)
 {
-	_hostname = s;
+	_hostaddr = s;
 }
 
 void	ConfigServer::setPort(string &s)
@@ -95,9 +95,9 @@ void	ConfigServer::updateLastLocation(Location &loc)
 	_locations.back() = loc;
 }
 
-string& ConfigServer::getHostname()
+string& ConfigServer::getHostaddr()
 {
-	return (_hostname);
+	return (_hostaddr);
 }
 
 size_t& ConfigServer::getPort()
