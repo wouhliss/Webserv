@@ -182,11 +182,17 @@ void	Server::fetch()
 			}
 			//Otherwise we have to read the incoming message
 			else
+			{
 				_handle_request(i);
+				FD_SET(i, &_writefds);
+			}
 		}
 		//If the fd is set on write, we have to send a response
-		else if (FD_ISSET(i, &_writefds))
+		if (FD_ISSET(i, &_writefds))
+		{
 			_handle_response(i);
+			FD_CLR(i, &_writefds);
+		}
 	}
 }
 
@@ -195,11 +201,35 @@ void	Server::fetch()
 
 //Function to handle incoming requests
 
-
+//add error handling: for CGI we have to break at the cgi delimiter if found
 void	Server::_handle_request(int fd)
 {
-	(void)fd;
-	//handle the request
+	char	buffer[SRV_RECV_BUFFER_SIZE];
+	int		bytes_received;
+
+	for (int i = 0 ; i < SRV_RECV_LOOP_LENGTH; i++)
+	{
+		bytes_received = recv(fd, buffer, SRV_RECV_BUFFER_SIZE, 0);
+		if (bytes_received <= 0)
+		{
+			FD_CLR(fd, &_currentfds);
+			FD_CLR(fd, &_writefds);
+			FD_CLR(fd, &_readfds);
+			if (close(fd) < 0)
+				std::cerr << "Error closing fd " << fd << std::endl;
+			return ;
+		}
+		//we check if the fd is in the map, if not we add it
+		if (_request_buffer.find(fd) == _request_buffer.end())
+			_request_buffer[fd] = std::string(buffer, bytes_received);
+		else
+			_request_buffer[fd] += std::string(buffer, bytes_received);
+
+		//we add conditions to break
+		if (_request_buffer[fd].find("\r\n\r\n") != std::string::npos)
+			break ;
+		//add other delim check like delim the cgi here
+	}
 }
 
 
@@ -207,6 +237,14 @@ void	Server::_handle_request(int fd)
 
 void	Server::_handle_response(int fd)
 {
-	(void)fd;
-	//handle the response
+	//we check if the fd is in the map, if not we return
+	if (_request_buffer.find(fd) == _request_buffer.end())
+		return ;
+	
+	Message request = messageParser::parseMessage(_request_buffer[fd]);
+	//we check if the request is a valid request
+	
+	//then we handle the request
+
+	//Then we write an answer based on the method invoqued
 }

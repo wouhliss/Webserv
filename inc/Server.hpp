@@ -4,19 +4,25 @@
 # include "../inc/includes.hpp"
 # include "../inc/ConfigServer.hpp"
 # include "../inc/Location.hpp"
+# include "../inc/Message.hpp"
+# include "../inc/messageParser.hpp"
+
+# define SRV_RECV_BUFFER_SIZE 4096
+# define SRV_RECV_LOOP_LENGTH 255
 
 class Server
 {
 	private:
 		//innate and network attributes
-		int 				_socketfd;
-		int 				_maxfd;
-		struct sockaddr_in 	_addr;
-		std::string			_request;
-		id_t				_addrlen;
-		fd_set 				_readfds, _writefds, _currentfds;
-		struct timeval		_timeout;
-		int 				_global_client_id;
+		int 						_socketfd;
+		int 						_maxfd;
+		struct sockaddr_in 			_addr;
+		std::string					_request;
+		id_t						_addrlen;
+		fd_set 						_readfds, _writefds, _currentfds;
+		struct timeval				_timeout;
+		int 						_global_client_id;
+		std::map<int, std::string>	_request_buffer;
 
 		//Attributes to receive from config
 		size_t							_port;

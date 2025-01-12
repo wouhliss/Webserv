@@ -2,6 +2,18 @@
 	- Add better protection guards between blocks : 
 		- either with { }
 		- or with proper identation formatting 
+	- Compile and extensive tests
 
+- Server :
+	- Handle request : 
+		- Add better delimiter for all edge cases (special function for it)
+	- Handle response :
+		- Code parse message functions (considering a fully terminated incoming message)
+		- Code verify message functions
+		- Correctly load a Message and read it
+		- Code internal handler functions for the server (new object if needed)
+			- They will generate the appropriate response 
 
-- See if we need a basic sig handler
+- Other :
+	- See if we need a basic sig handler (yes) 
+
