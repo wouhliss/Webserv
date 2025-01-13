@@ -41,14 +41,24 @@ int main(int argc, char **argv)
 	// load and parse config file
 	try
 	{
-		std::vector<ConfigServer> servers = configParser::parseConfigFile(filename);
+		std::vector<ConfigServer> serversConfs = configParser::parseConfigFile(filename);
+		std::vector<Server *> servers;
 
-		for (std::vector<ConfigServer>::iterator it = servers.begin(); it != servers.end(); ++it)
+		for (std::vector<ConfigServer>::iterator it = serversConfs.begin(); it != serversConfs.end(); ++it)
 		{
 			std::cout << it->getServerName() << '\n'
 					  << it->getHostaddr() << '\n'
 					  << it->getPort() << '\n'
 					  << std::endl;
+			servers.push_back(new Server(*it));
+		}
+		while (1)
+		{
+			// for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+			// {
+			// 	(*(*it)).fetch();
+			// }
+			servers.at(0)->fetch();
 		}
 	}
 	catch (std::exception &e)
