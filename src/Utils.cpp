@@ -1,4 +1,4 @@
-# include "../inc/utils.hpp"
+# include "../inc/Utils.hpp"
 
 std::string utils::trimSpaces(std::string s)
 {

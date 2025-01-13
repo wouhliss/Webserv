@@ -47,7 +47,8 @@ clean:
 fclean:
 	${DELFILES} $(OBJDIR) $(BINDIR)/$(TARGET)
 
-re:	fclean all
+re:	fclean
+	$(MAKE) all
 
 # Phony targets
 .PHONY: all clean re fclean

@@ -10,7 +10,7 @@
 # include "../inc/Server.hpp"
 # include "../inc/Message.hpp"
 # include "../inc/messageParser.hpp"
-# include "../inc/utils.hpp"
+# include "../inc/Utils.hpp"
 
 
 #endif

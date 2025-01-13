@@ -20,7 +20,6 @@
 # include <stack>
 # include <iterator>
 # include <map>
-# include <regex>
 # include <stack>
 # include <deque>
 # include <utility>

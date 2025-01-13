@@ -83,7 +83,7 @@ void	configParser::parseLine(std::string line, ConfigServer &current_server, con
 	if (value.empty())
 		throw std::runtime_error("Error: unknown key");
 	if (parser_position.error == true && parser_position.location == false)
-		current_server.setErrorPages(std::stoi(key), value);
+		current_server.setErrorPages(std::atoi(key.c_str()), value);
 	else if (parser_position.location == true)
 		configParser::parseLocationBlock(key, value, current_server);
 	else
