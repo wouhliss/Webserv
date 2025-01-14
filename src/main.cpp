@@ -1,5 +1,12 @@
 #include "../inc/main.hpp"
 
+int max_fd = 0;
+
+fd_set currentfds, writefds, readfds;
+
+std::map<int, std::string> request_buffer;
+std::map<int, bool> sock_fd;
+
 bool check_extension(std::string filename)
 {
 	std::string extension = filename.substr(filename.find_last_of(".") + 1);
@@ -11,6 +18,98 @@ bool check_extension(std::string filename)
 			return (true);
 	}
 	return (false);
+}
+
+void loop_handle()
+{
+	int select_ret;
+
+	// Copy the current fds to the read and write fds since select is destructive
+	readfds = writefds = currentfds;
+	// Main select call
+	select_ret = select(max_fd + 1, &readfds, &writefds, NULL, 0);
+	// If select fail, we have to handle it without exiting
+	if (select_ret < 0 || select_ret > FD_SETSIZE)
+	{
+		std::cerr << "Error in select" << std::endl;
+		// loop through all fd until maxfd, and close them if they are set on read
+		// ignore the _socketfd since it is the server socket
+		// if they are set on write, just clear them
+		for (int i = 0; i <= max_fd; i++)
+		{
+			if (FD_ISSET(i, &readfds) && sock_fd.find(i) == sock_fd.end())
+			{
+				close(i);
+				FD_CLR(i, &currentfds);
+			}
+			else if (FD_ISSET(i, &writefds) && sock_fd.find(i) == sock_fd.end())
+				FD_CLR(i, &currentfds);
+		}
+		return;
+	}
+
+	// Otherwise we handle the connexions by looping through all the fds
+	for (int i = 0; i <= max_fd; i++)
+	{
+		// If the fd is set on read, we have an incoming connexion
+		if (FD_ISSET(i, &readfds))
+		{
+			// If the fd is the server socket, we have to accept the connexion
+			if (sock_fd.find(i) != sock_fd.end())
+			{
+				int new_fd;
+				struct sockaddr_in new_addr;
+				id_t new_addrlen = sizeof(new_addr);
+
+				// Accept the connexion
+				new_fd = accept(i, (struct sockaddr *)&new_addr, &new_addrlen);
+
+				// Add the new fd to the current fds
+				FD_SET(new_fd, &currentfds);
+				// Update the maxfd if necessary
+				if (new_fd > max_fd)
+					max_fd = new_fd;
+				std::cout << "accept" << std::endl;
+			}
+			// Otherwise we have to read the incoming message
+			else
+			{
+				char buffer[SRV_RECV_BUFFER_SIZE];
+				int bytes_received;
+
+				bytes_received = recv(i, buffer, sizeof(buffer), 0);
+				if (bytes_received <= 0)
+				{
+					FD_CLR(i, &currentfds);
+					if (close(i) < 0)
+						std::cerr << "Error closing fd " << i << std::endl;
+					std::cout << "logout" << std::endl;
+					request_buffer[i].clear();
+					return;
+				}
+				// we check if the fd is in the map, if not we add it
+				if (request_buffer.find(i) == request_buffer.end())
+					request_buffer[i] = std::string(buffer, bytes_received);
+				else
+					request_buffer[i] += std::string(buffer, bytes_received);
+
+				std::cout << request_buffer[i] << std::endl;
+
+				// we add conditions to break
+				if (request_buffer[i].find("\r\n\r\n") != std::string::npos)
+					std::cout << "line" << std::endl;
+				// add other delim check like delim the cgi here
+			}
+		}
+	}
+}
+
+volatile __sig_atomic_t loop = 1;
+
+void siginthandle(int sig)
+{
+	(void)sig;
+	loop = 0;
 }
 
 int main(int argc, char **argv)
@@ -44,6 +143,7 @@ int main(int argc, char **argv)
 		std::vector<ConfigServer> serversConfs = configParser::parseConfigFile(filename);
 		std::vector<Server *> servers;
 
+		FD_ZERO(&currentfds);
 		for (std::vector<ConfigServer>::iterator it = serversConfs.begin(); it != serversConfs.end(); ++it)
 		{
 			std::cout << it->getServerName() << '\n'
@@ -52,13 +152,14 @@ int main(int argc, char **argv)
 					  << std::endl;
 			servers.push_back(new Server(*it));
 		}
-		while (1)
+		signal(SIGINT, siginthandle);
+		while (loop)
 		{
-			// for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
-			// {
-			// 	(*(*it)).fetch();
-			// }
-			servers.at(0)->fetch();
+			loop_handle();
+		}
+		for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+		{
+			delete *it;
 		}
 	}
 	catch (std::exception &e)
