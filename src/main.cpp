@@ -5,6 +5,7 @@ int max_fd = 0;
 fd_set currentfds, writefds, readfds;
 
 std::map<int, std::string> request_buffer;
+std::map<int, std::string> response_buffer;
 std::map<int, bool> sock_fd;
 std::map<int, int> fd_to_sock;
 
@@ -49,6 +50,8 @@ void loop_handle()
 		return;
 	}
 
+	std::size_t pos;
+
 	// Otherwise we handle the connexions by looping through all the fds
 	for (int i = 0; i <= max_fd; i++)
 	{
@@ -88,7 +91,8 @@ void loop_handle()
 					if (close(i) < 0)
 						std::cerr << "Error closing fd " << i << std::endl;
 					std::cout << "logout" << std::endl;
-					request_buffer[i].clear();
+					request_buffer.erase(i);
+					response_buffer.erase(i);
 					fd_to_sock.erase(i);
 					return;
 				}
@@ -101,9 +105,8 @@ void loop_handle()
 				std::cout << request_buffer[i] << std::endl;
 
 				// we add conditions to break
-				std::size_t pos;
 
-				while ((pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
+				if (response_buffer.find(i) == response_buffer.end() && (pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
 				{
 					std::cout << "line" << std::endl;
 					Message message = messageParser::parseMessage(request_buffer[i]);
@@ -117,13 +120,33 @@ void loop_handle()
 
 					request_buffer[i].erase(0, pos + 4);
 
-					if (FD_ISSET(i, &writefds))
-					{
-						std::cout << "sent " << send(i, "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n", sizeof("HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n"), 0) << " bytes to " << i << std::endl;
-					}
+					response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n";
 				}
 				// add other delim check like delim the cgi here
 			}
+		}
+		if (response_buffer.find(i) != response_buffer.end() && FD_ISSET(i, &writefds))
+		{
+			ssize_t bytes_sent = send(i, response_buffer[i].c_str(), response_buffer.size(), 0);
+			response_buffer[i].erase(0, bytes_sent);
+			if (!response_buffer[i].size())
+				response_buffer.erase(i);
+		}
+		if (response_buffer.find(i) == response_buffer.end() && (pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
+		{
+			std::cout << "line" << std::endl;
+			Message message = messageParser::parseMessage(request_buffer[i]);
+
+			std::cout << message.getMethod() << '\n'
+					  << message.getBody() << '\n'
+					  << message.getRequestTarget() << '\n'
+					  << message.getType() << '\n'
+					  << message.getHttpVersion() << '\n'
+					  << std::endl;
+
+			request_buffer[i].erase(0, pos + 4);
+
+			response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n";
 		}
 	}
 }
