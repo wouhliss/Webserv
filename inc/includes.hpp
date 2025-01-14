@@ -54,5 +54,6 @@ extern fd_set writefds;
 extern fd_set readfds;
 
 extern std::map<int, bool> sock_fd;
+extern std::map<int, int> fd_to_sock;
 
 #endif

@@ -1,14 +1,14 @@
 #ifndef MESSAGEPARSER_HPP
-# define MESSAGEPARSER_HPP
+#define MESSAGEPARSER_HPP
 
-# include "../inc/includes.hpp"
-# include "../inc/Utils.hpp"
-# include "../inc/Message.hpp"
+#include "../inc/includes.hpp"
+#include "../inc/Utils.hpp"
+#include "../inc/Message.hpp"
 
 namespace messageParser
 {
-	Message		parseMessage(std::string flux);
-	void		parseRequestLine(std::string line, Message &message);
+	Message parseMessage(std::string &flux);
+	void parseRequestLine(std::string &line, Message &message);
 }
 
 #endif

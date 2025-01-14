@@ -6,6 +6,7 @@ fd_set currentfds, writefds, readfds;
 
 std::map<int, std::string> request_buffer;
 std::map<int, bool> sock_fd;
+std::map<int, int> fd_to_sock;
 
 bool check_extension(std::string filename)
 {
@@ -69,6 +70,9 @@ void loop_handle()
 				// Update the maxfd if necessary
 				if (new_fd > max_fd)
 					max_fd = new_fd;
+
+				fd_to_sock[new_fd] = i;
+
 				std::cout << "accept" << std::endl;
 			}
 			// Otherwise we have to read the incoming message
@@ -85,6 +89,7 @@ void loop_handle()
 						std::cerr << "Error closing fd " << i << std::endl;
 					std::cout << "logout" << std::endl;
 					request_buffer[i].clear();
+					fd_to_sock.erase(i);
 					return;
 				}
 				// we check if the fd is in the map, if not we add it
@@ -97,7 +102,17 @@ void loop_handle()
 
 				// we add conditions to break
 				if (request_buffer[i].find("\r\n\r\n") != std::string::npos)
+				{
 					std::cout << "line" << std::endl;
+					Message message = messageParser::parseMessage(request_buffer[i]);
+
+					std::cout << message.getMethod() << '\n'
+							  << message.getBody() << '\n'
+							  << message.getRequestTarget() << '\n'
+							  << message.getType() << '\n'
+							  << message.getHttpVersion() << '\n'
+							  << std::endl;
+				}
 				// add other delim check like delim the cgi here
 			}
 		}

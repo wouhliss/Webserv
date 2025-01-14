@@ -36,6 +36,13 @@ Server::Server(const Server &copy)
 
 Server::~Server()
 {
+	for (std::map<int, int>::iterator it = fd_to_sock.begin(); it != fd_to_sock.end(); ++it)
+	{
+		if (it->second == _socketfd)
+		{
+			close(it->first);
+		}
+	}
 	close(_socketfd);
 }
 
