@@ -101,7 +101,9 @@ void loop_handle()
 				std::cout << request_buffer[i] << std::endl;
 
 				// we add conditions to break
-				if (request_buffer[i].find("\r\n\r\n") != std::string::npos)
+				std::size_t pos;
+
+				while ((pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
 				{
 					std::cout << "line" << std::endl;
 					Message message = messageParser::parseMessage(request_buffer[i]);
@@ -112,6 +114,13 @@ void loop_handle()
 							  << message.getType() << '\n'
 							  << message.getHttpVersion() << '\n'
 							  << std::endl;
+
+					request_buffer[i].erase(0, pos + 4);
+
+					if (FD_ISSET(i, &writefds))
+					{
+						std::cout << "sent " << send(i, "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n", sizeof("HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n"), 0) << " bytes to " << i << std::endl;
+					}
 				}
 				// add other delim check like delim the cgi here
 			}
