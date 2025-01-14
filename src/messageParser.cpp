@@ -13,6 +13,8 @@ Message	messageParser::parseMessage(std::string flux)
 		throw std::runtime_error("Error: empty request line");
 	parseRequestLine(line, message);
 
+	//see if we need to handle cgi here
+
 	//Parse headers
 	while (std::getline(iss, line))
 	{
@@ -26,7 +28,22 @@ Message	messageParser::parseMessage(std::string flux)
 		value = utils::trimSpaces(value);
 		message.addHeader(key, value);
 	}
+
+	//parse body
 	message.setBody(flux.substr(flux.find("\r\n\r\n") + 4));
+
+	//handle cookies here
+
+	//add cookies
+
+	//get cookies
+	if (message.getRequestTarget().find("get_cookie") != std::string::npos)
+	{
+		std::string cookie = message.getHeaders()["Cookie"];
+		if (!cookie.empty())
+			message.setBody(cookie);
+	}
+
 	return (message);
 }
 
