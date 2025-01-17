@@ -116,3 +116,10 @@ string&						Message::getBody()
 {
 	return (_body);
 }
+
+//Private methods
+
+bool	Message::_isValidRequest()
+{
+	return (true);
+}

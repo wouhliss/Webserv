@@ -22,6 +22,9 @@ class Message
 		std::map<string, string>	_headers;
 		string						_body;
 
+		//Private methods
+		bool	_isValidRequest();
+
 	public:
 		Message();
 		Message(const Message& copy);

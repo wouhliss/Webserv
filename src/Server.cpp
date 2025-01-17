@@ -140,8 +140,54 @@ void Server::_init_sockets()
 
 // 	Message request = messageParser::parseMessage(_request_buffer[fd]);
 // 	// we check if the request is a valid request
+// 	if (request._isValidRequest())
+// 	{
+		// then we handle the request
+		// _treatRequest(request);
 
-// 	// then we handle the request
-
-// 	// Then we write an answer based on the method invoqued
+		// we write an answer based on the method invoqued
+// 	}
 // }
+
+void Server::_treatRequest(Message &request, int fd)
+{
+	method = request.getMethod();
+	if (method == "GET")
+	{
+		// _handleGetRequest(request, fd);
+	}
+	else if (method == "POST")
+	{
+		// _handlePostRequest(request, fd);
+	}
+	else if (method == "DELETE")
+	{
+		// _handleDeleteRequest(request, fd);
+	}
+	else
+	{
+		// _handleInvalidRequest(request, fd);
+	}
+}
+
+void Server::_handleGetRequest(Message &request, int fd)
+{
+
+}
+
+void Server::_handlePostRequest(Message &request, int fd)
+{
+
+}
+
+void Server::_handleDeleteRequest(Message &request, int fd)
+{
+	//retrieve filename from request
+	//delete file
+	//send response
+}
+
+void Server::_handleInvalidRequest(Message &request, int fd)
+{
+
+}

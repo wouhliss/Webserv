@@ -37,6 +37,12 @@ private:
 	void _handle_request(int fd);
 	// Handle response messages
 	void _handle_response(int fd);
+	//All request handling functions
+	void _treatRequest(Message &request, int fd);
+	void _handleGetRequest(Message &request, int fd);
+	void _handlePostRequest(Message &request, int fd);
+	void _handleDeleteRequest(Message &request, int fd);
+	void _handleInvalidRequest(Message &request, int fd);
 
 public:
 	Server();
