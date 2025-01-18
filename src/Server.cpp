@@ -118,73 +118,73 @@ void Server::_init_sockets()
 // main fetch function that will be inside in the main loop
 // uses select to check for incoming connections and treat them accordingly
 // FROM HERE we want resilience, we cannot exit on errors, we have to handle them and continue
-// void Server::fetch()
-// {
+void Server::fetch()
+{
 
-// }
+}
 
 // Function to handle incoming requests
 
-// // add error handling: for CGI we have to break at the cgi delimiter if found
-// void Server::_handle_request(int fd)
-// {
-// }
+// add error handling: for CGI we have to break at the cgi delimiter if found
+void Server::_handle_request(int fd)
+{
+}
 
-// // Function to handle response messages
+// Function to handle response messages
 
-// void Server::_handle_response(int fd)
-// {
-// 	// we check if the fd is in the map, if not we return
-// 	if (_request_buffer.find(fd) == _request_buffer.end())
-// 		return;
+void Server::_handle_response(int fd)
+{
+	// we check if the fd is in the map, if not we return
+	if (_request_buffer.find(fd) == _request_buffer.end())
+		return;
 
-// 	Message request = messageParser::parseMessage(_request_buffer[fd]);
-// 	// we check if the request is a valid request
-// 	if (request._isValidRequest())
-// 	{
-// then we handle the request
-// _treatRequest(request);
+	Message request = messageParser::parseMessage(_request_buffer[fd]);
+	// we check if the request is a valid request
+	if (request._isValidRequest())
+	{
+		// then we handle the request
+		_treatRequest(request);
 
-// we write an answer based on the method invoqued
-// 	}
-// }
+	// we write an answer based on the method invoqued
+	}
+}
 
-// void Server::_treatRequest(Message &request, int fd)
-// {
-// 	std::string method = request.getMethod();
-// 	if (method == "GET")
-// 	{
-// 		// _handleGetRequest(request, fd);
-// 	}
-// 	else if (method == "POST")
-// 	{
-// 		// _handlePostRequest(request, fd);
-// 	}
-// 	else if (method == "DELETE")
-// 	{
-// 		// _handleDeleteRequest(request, fd);
-// 	}
-// 	else
-// 	{
-// 		// _handleInvalidRequest(request, fd);
-// 	}
-// }
+void Server::_treatRequest(Message &request, int fd)
+{
+	std::string method = request.getMethod();
+	if (method == "GET")
+	{
+		// _handleGetRequest(request, fd);
+	}
+	else if (method == "POST")
+	{
+		// _handlePostRequest(request, fd);
+	}
+	else if (method == "DELETE")
+	{
+		// _handleDeleteRequest(request, fd);
+	}
+	else
+	{
+		// _handleInvalidRequest(request, fd);
+	}
+}
 
-// void Server::_handleGetRequest(Message &request, int fd)
-// {
-// }
+void Server::_handleGetRequest(Message &request, int fd)
+{
+}
 
-// void Server::_handlePostRequest(Message &request, int fd)
-// {
-// }
+void Server::_handlePostRequest(Message &request, int fd)
+{
+}
 
-// void Server::_handleDeleteRequest(Message &request, int fd)
-// {
-// 	// retrieve filename from request
-// 	// delete file
-// 	// send response
-// }
+void Server::_handleDeleteRequest(Message &request, int fd)
+{
+	// retrieve filename from request
+	// delete file
+	// send response
+}
 
-// void Server::_handleInvalidRequest(Message &request, int fd)
-// {
-// }
+void Server::_handleInvalidRequest(Message &request, int fd)
+{
+}

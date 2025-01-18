@@ -1,6 +1,9 @@
 - Parsing config file : 
 	- Compile and extensive tests
 
+- Main : 
+	- select propre
+
 - Server :
 	- Handle request : 
 		- Add better delimiter for all edge cases (special function for it)
@@ -13,4 +16,6 @@
 
 
 Clean final: 
-	- Added 
+	- clean servertest dir
+	- voir si clean docker ou pas
+	- voir truc mime.types
