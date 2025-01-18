@@ -2,8 +2,6 @@
 
 int max_fd = 0;
 
-int global = 66;
-
 fd_set currentfds, writefds, readfds;
 
 std::map<int, std::string> request_buffer;
