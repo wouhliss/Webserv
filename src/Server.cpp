@@ -228,7 +228,7 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 	response_body = "test";
 
 	response_headers += "Content-Type: text/html\r\n";
-	response_headers += "Content-Length: " + SSTR(response_body.size());
+	response_headers += "Content-Length: " + SSTR(response_body.size()) + "\r\n";
 
 	response = response_status_line + response_headers + "\r\n" + response_body;
 
