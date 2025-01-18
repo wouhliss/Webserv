@@ -198,6 +198,23 @@ void Server::_handleInvalidRequest(Message &request, int fd)
 {
 }
 
-void Server::_sendResponse(int fd, std::string response, int status_code, std::string type)
+void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std::string type)
 {
+	std::string response;
+	std::string response_status_line;
+	std::string response_headers;
+	std::string response_body;
+
+	response_body = response;
+
+	//status-line = HTTP-version SP status-code SP [ reason-phrase ]
+	//We can ignore the reason phrase, gonna be ignored by the client anyway
+	response_status_line = "HTTP/1.1 " + std::to_string(status_code) + " " + "\r\n";
+
+	//add stuff for cookies here
+	//add necessary headers here
+
+	response = response_status_line + response_headers + "\r\n" + response_body;
+
+	//send message here
 }

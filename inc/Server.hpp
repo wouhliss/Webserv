@@ -45,7 +45,7 @@ private:
 	void _handleInvalidRequest(Message &request, int fd);
 
 	//send response
-	void _sendResponse(int fd, std::string response, int status_code, std::string type);
+	void _sendResponse(int fd, std::string body_buffer, int status_code, std::string type);
 
 public:
 	Server();
