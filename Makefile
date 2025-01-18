@@ -53,11 +53,14 @@ re:	fclean
 down:
 	docker compose down
 
-purge:
+purge: down
 	docker system prune -af
 
 run: down
 	docker compose up -d
 
+runpurge: purge
+	docker compose up -d
+
 # Phony targets
-.PHONY: all clean re fclean run down purge
+.PHONY: all clean re fclean run down purge runpurge
