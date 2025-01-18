@@ -1,7 +1,4 @@
 - Parsing config file : 
-	- Add better protection guards between blocks : 
-		- either with { }
-		- or with proper identation formatting 
 	- Compile and extensive tests
 
 - Server :
@@ -13,7 +10,3 @@
 		- Correctly load a Message and read it
 		- Code internal handler functions for the server (new object if needed)
 			- They will generate the appropriate response 
-
-- Other :
-	- See if we need a basic sig handler (yes) 
-

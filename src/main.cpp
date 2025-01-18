@@ -120,7 +120,7 @@ void loop_handle()
 
 					request_buffer[i].erase(0, pos + 4);
 
-					response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n";
+					response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!";
 				}
 				// add other delim check like delim the cgi here
 			}
