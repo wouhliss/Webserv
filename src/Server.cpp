@@ -120,7 +120,6 @@ void Server::_init_sockets()
 // FROM HERE we want resilience, we cannot exit on errors, we have to handle them and continue
 void Server::fetch()
 {
-
 }
 
 // Function to handle incoming requests
@@ -128,29 +127,31 @@ void Server::fetch()
 // add error handling: for CGI we have to break at the cgi delimiter if found
 void Server::_handle_request(int fd)
 {
+	(void)fd;
 }
 
 // Function to handle response messages
 
-void Server::_handle_response(int fd)
+void Server::handle_response(int fd)
 {
 	// we check if the fd is in the map, if not we return
-	if (_request_buffer.find(fd) == _request_buffer.end())
+	if (request_buffer.find(fd) == request_buffer.end())
 		return;
 
-	Message request = messageParser::parseMessage(_request_buffer[fd]);
+	Message request = messageParser::parseMessage(request_buffer[fd]);
 	// we check if the request is a valid request
 	if (request._isValidRequest())
 	{
 		// then we handle the request
-		_treatRequest(request);
+		_treatRequest(request, fd);
 
-	// we write an answer based on the method invoqued
+		// we write an answer based on the method invoqued
 	}
 }
 
 void Server::_treatRequest(Message &request, int fd)
 {
+	(void)fd;
 	std::string method = request.getMethod();
 	if (method == "GET")
 	{
@@ -162,7 +163,7 @@ void Server::_treatRequest(Message &request, int fd)
 	}
 	else if (method == "DELETE")
 	{
-		// _handleDeleteRequest(request, fd);
+		_handleDeleteRequest(request, fd);
 	}
 	else
 	{
@@ -172,34 +173,44 @@ void Server::_treatRequest(Message &request, int fd)
 
 void Server::_handleGetRequest(Message &request, int fd)
 {
+	(void)request;
+	(void)fd;
 }
 
 void Server::_handlePostRequest(Message &request, int fd)
 {
+	(void)request;
+	(void)fd;
 }
 
 void Server::_handleDeleteRequest(Message &request, int fd)
 {
-	std::string filepath = _root + request.getPath();
+	(void)fd;
+	std::string filepath = _root + request.getRequestTarget();
 
 	if (std::remove(filepath.c_str()) != 0)
 	{
 		std::cerr << "Error deleting file :" << filepath << std::endl;
-		// send error response
-		return ;
+		_sendResponse(fd, std::string(""), 500, std::string("DELETE"));
+		return;
 	}
 	else
 	{
-		// send success response
+		_sendResponse(fd, std::string(""), 200, std::string("DELETE"));
 	}
 }
 
 void Server::_handleInvalidRequest(Message &request, int fd)
 {
+	(void)request;
+	(void)fd;
 }
 
 void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std::string type)
 {
+	(void)fd;
+	(void)body_buffer;
+	(void)type;
 	std::string response;
 	std::string response_status_line;
 	std::string response_headers;
@@ -207,14 +218,26 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 
 	response_body = response;
 
-	//status-line = HTTP-version SP status-code SP [ reason-phrase ]
-	//We can ignore the reason phrase, gonna be ignored by the client anyway
-	response_status_line = "HTTP/1.1 " + std::to_string(status_code) + " " + "\r\n";
+	// status-line = HTTP-version SP status-code SP [ reason-phrase ]
+	// We can ignore the reason phrase, gonna be ignored by the client anyway
+	response_status_line = "HTTP/1.1 " + SSTR(status_code) + " " + "\r\n";
 
-	//add stuff for cookies here
-	//add necessary headers here
+	// add stuff for cookies here
+	// add necessary headers here
+
+	response_body = "test";
+
+	response_headers += "Content-Type: text/html\r\n";
+	response_headers += "Content-Length: " + SSTR(response_body.size());
 
 	response = response_status_line + response_headers + "\r\n" + response_body;
 
-	//send message here
+	// send message here
+
+	response_buffer[fd] = response;
+}
+
+int Server::get_sock_fd(void) const
+{
+	return (_socketfd);
 }

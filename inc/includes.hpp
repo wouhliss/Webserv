@@ -55,5 +55,11 @@ extern fd_set readfds;
 
 extern std::map<int, bool> sock_fd;
 extern std::map<int, int> fd_to_sock;
+extern std::map<int, std::string> request_buffer;
+extern std::map<int, std::string> response_buffer;
+
+#define SSTR(x) static_cast<std::ostringstream &>(           \
+					(std::ostringstream() << std::dec << x)) \
+					.str()
 
 #endif

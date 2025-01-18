@@ -8,6 +8,7 @@ std::map<int, std::string> request_buffer;
 std::map<int, std::string> response_buffer;
 std::map<int, bool> sock_fd;
 std::map<int, int> fd_to_sock;
+std::vector<Server *> servers;
 
 bool check_extension(std::string filename)
 {
@@ -75,8 +76,6 @@ void loop_handle()
 					max_fd = new_fd;
 
 				fd_to_sock[new_fd] = i;
-
-				std::cout << "accept" << std::endl;
 			}
 			// Otherwise we have to read the incoming message
 			else
@@ -90,7 +89,6 @@ void loop_handle()
 					FD_CLR(i, &currentfds);
 					if (close(i) < 0)
 						std::cerr << "Error closing fd " << i << std::endl;
-					std::cout << "logout" << std::endl;
 					request_buffer.erase(i);
 					response_buffer.erase(i);
 					fd_to_sock.erase(i);
@@ -102,13 +100,10 @@ void loop_handle()
 				else
 					request_buffer[i] += std::string(buffer, bytes_received);
 
-				std::cout << request_buffer[i] << std::endl;
-
 				// we add conditions to break
 
 				if (response_buffer.find(i) == response_buffer.end() && (pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
 				{
-					std::cout << "line" << std::endl;
 					Message message = messageParser::parseMessage(request_buffer[i]);
 
 					std::cout << message.getMethod() << '\n'
@@ -118,9 +113,15 @@ void loop_handle()
 							  << message.getHttpVersion() << '\n'
 							  << std::endl;
 
-					request_buffer[i].erase(0, pos + 4);
+					for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+					{
+						if ((*it)->get_sock_fd() == fd_to_sock[i])
+						{
+							(*it)->handle_response(i);
+						}
+					}
 
-					response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!";
+					request_buffer[i].erase(0, pos + 4);
 				}
 				// add other delim check like delim the cgi here
 			}
@@ -128,13 +129,13 @@ void loop_handle()
 		if (response_buffer.find(i) != response_buffer.end() && FD_ISSET(i, &writefds))
 		{
 			ssize_t bytes_sent = send(i, response_buffer[i].c_str(), response_buffer.size(), 0);
+			std::cout << "sent " << bytes_sent << " bytes to " << i << " content: " << response_buffer[i].substr(0, bytes_sent) << std::endl;
 			response_buffer[i].erase(0, bytes_sent);
 			if (!response_buffer[i].size())
 				response_buffer.erase(i);
 		}
 		if (response_buffer.find(i) == response_buffer.end() && (pos = request_buffer[i].find("\r\n\r\n")) != std::string::npos)
 		{
-			std::cout << "line" << std::endl;
 			Message message = messageParser::parseMessage(request_buffer[i]);
 
 			std::cout << message.getMethod() << '\n'
@@ -144,9 +145,15 @@ void loop_handle()
 					  << message.getHttpVersion() << '\n'
 					  << std::endl;
 
-			request_buffer[i].erase(0, pos + 4);
+			for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+			{
+				if ((*it)->get_sock_fd() == fd_to_sock[i])
+				{
+					(*it)->handle_response(i);
+				}
+			}
 
-			response_buffer[i] = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 8\n\nbonjour!\r\n\r\n";
+			request_buffer[i].erase(0, pos + 4);
 		}
 	}
 }
@@ -188,7 +195,6 @@ int main(int argc, char **argv)
 	try
 	{
 		std::vector<ConfigServer> serversConfs = configParser::parseConfigFile(filename);
-		std::vector<Server *> servers;
 
 		FD_ZERO(&currentfds);
 		for (std::vector<ConfigServer>::iterator it = serversConfs.begin(); it != serversConfs.end(); ++it)

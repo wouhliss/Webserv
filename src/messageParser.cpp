@@ -22,7 +22,6 @@ Message messageParser::parseMessage(std::string &flux)
 			break;
 		if (line.find(":") == std::string::npos)
 		{
-			std::cerr << "issue: " << line << std::endl;
 			throw std::runtime_error("Error: invalid header");
 		}
 		key = line.substr(0, line.find_first_of(":"));

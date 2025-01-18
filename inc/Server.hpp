@@ -18,7 +18,7 @@ private:
 	struct sockaddr_in _addr;
 	std::string _request;
 	id_t _addrlen;
-	int _global_client_id;
+	// int _global_client_id;
 
 	// Attributes to receive from config
 	size_t _port;
@@ -36,15 +36,14 @@ private:
 	// Handle incoming requests
 	void _handle_request(int fd);
 	// Handle response messages
-	void _handle_response(int fd);
-	//All request handling functions
+	// All request handling functions
 	void _treatRequest(Message &request, int fd);
 	void _handleGetRequest(Message &request, int fd);
 	void _handlePostRequest(Message &request, int fd);
 	void _handleDeleteRequest(Message &request, int fd);
 	void _handleInvalidRequest(Message &request, int fd);
 
-	//send response
+	// send response
 	void _sendResponse(int fd, std::string body_buffer, int status_code, std::string type);
 
 public:
@@ -55,6 +54,8 @@ public:
 	Server &operator=(const Server &copy);
 
 	void fetch();
+	void handle_response(int fd);
+	int get_sock_fd() const;
 };
 
 #endif
