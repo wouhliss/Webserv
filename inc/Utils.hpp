@@ -6,6 +6,7 @@
 namespace utils
 {
 	std::string	trimSpaces(std::string s);
+	bool		fileExists(const std::string &name);
 }
 
 #endif

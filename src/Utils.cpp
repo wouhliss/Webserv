@@ -10,3 +10,10 @@ std::string utils::trimSpaces(std::string s)
     size_t end = s.find_last_not_of(" \t");
     return s.substr(start, end - start + 1);
 }
+
+
+bool utils::fileExists(const std::string &name)
+{
+    struct stat buffer;
+    return (stat(name.c_str(), &buffer) == 0);
+}
