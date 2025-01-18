@@ -180,9 +180,18 @@ void Server::_handlePostRequest(Message &request, int fd)
 
 void Server::_handleDeleteRequest(Message &request, int fd)
 {
-	// retrieve filename from request
-	// delete file
-	// send response
+	std::string filepath = _root + request.getPath();
+
+	if (std::remove(filepath.c_str()) != 0)
+	{
+		std::cerr << "Error deleting file :" << filepath << std::endl;
+		// send error response
+		return ;
+	}
+	else
+	{
+		// send success response
+	}
 }
 
 void Server::_handleInvalidRequest(Message &request, int fd)
