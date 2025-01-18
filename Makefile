@@ -50,5 +50,14 @@ fclean:
 re:	fclean
 	$(MAKE) all
 
+down:
+	docker compose down
+
+purge:
+	docker system prune -af
+
+run: down
+	docker compose up -d
+
 # Phony targets
-.PHONY: all clean re fclean
+.PHONY: all clean re fclean run down purge
