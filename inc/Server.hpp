@@ -44,6 +44,9 @@ private:
 	void _handleDeleteRequest(Message &request, int fd);
 	void _handleInvalidRequest(Message &request, int fd);
 
+	//send response
+	void _sendResponse(int fd, std::string response, int status_code, std::string type);
+
 public:
 	Server();
 	Server(ConfigServer &server);

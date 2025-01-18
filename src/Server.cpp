@@ -197,3 +197,7 @@ void Server::_handleDeleteRequest(Message &request, int fd)
 void Server::_handleInvalidRequest(Message &request, int fd)
 {
 }
+
+void Server::_sendResponse(int fd, std::string response, int status_code, std::string type)
+{
+}
