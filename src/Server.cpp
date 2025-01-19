@@ -232,8 +232,21 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 
 	response = response_status_line + response_headers + "\r\n" + response_body;
 
-	// send message here
+	//utiliser ca plutot
 
+	// if (send(fd, response.c_str(), response.size(), 0) < 0)
+	// {
+	// 	std::cerr << "Error sending response" << std::endl;
+	// 	FD_CLR(fd, &writefds);
+	// 	if (FD_ISSET(fd, &readfds)) {
+	// 		FD_CLR(fd, &currentfds);
+	// 		FD_CLR(fd, &readfds);
+	// 		if (close(fd) < 0)
+	// 			std::cerr << "Error closing fd " << fd << std::endl;
+	// 	}
+	// }
+
+	//c quoi cette merde
 	response_buffer[fd] = response;
 }
 

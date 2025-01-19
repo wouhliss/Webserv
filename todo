@@ -16,6 +16,9 @@
 	- DELETE :
 		- Handle edgecases
 
+- Autre 
+	- custom close pour fd
+
 
 Clean final: 
 	- clean servertest dir
