@@ -28,7 +28,7 @@ Location& Location::operator=(const Location &copy)
 }
 
 
-bool	Location::_checkValidMethod(std::string &s)
+bool	Location::checkValidMethod(std::string &s)
 {
 	const std::string methods[] = ALLOWED_METHODS;
 

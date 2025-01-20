@@ -3,6 +3,7 @@
 
 - Main : 
 	- select propre
+	- remettre la boucle au bon endroit, virer les variables globales degueulasses
 
 - Server :
 	- Handle request : 
@@ -10,7 +11,7 @@
 	- Handle response :
 		- Code verify message functions
 	- Send response function : 
-		- La coder hehe
+		- Utiliser le send de la fonction sendmessage
 	- GET :
 	- POST :
 	- DELETE :

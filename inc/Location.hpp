@@ -15,8 +15,6 @@ class Location
 		std::vector<std::string>	_allowed_methods;
 		bool						_directory_listing;
 
-		bool						_checkValidMethod(std::string &s);
-
 	public:
 		Location();
 		Location(const Location& copy);
@@ -32,6 +30,8 @@ class Location
 		string&						getRedirects();
 		std::vector<std::string>&	getAllowedMethods();
 		bool&						getDirectoryListing();
+
+		bool						checkValidMethod(std::string &s);
 };
 
 #endif

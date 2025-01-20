@@ -173,8 +173,59 @@ void Server::_treatRequest(Message &request, int fd)
 
 void Server::_handleGetRequest(Message &request, int fd)
 {
-	(void)request;
-	(void)fd;
+	std::stringstream 	response_buffer;
+	std::string 		filepath = request.getRequestTarget();
+	std::string			path = filepath + _default_file;
+	int					status_code = 200;
+
+	//handle special cases -> cookies / cgi, that needs treated differently
+
+	//handles redirections
+	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
+	{
+		//redirection exists
+		if (it->getLocation() == filepath)
+		{
+			//if redirection empty, check for directory listing
+			if (it->getRedirects().size() == 0)
+			{
+				//we check if we are on a directory && if directory listing is on
+				std::ifstream checkfile(_root + path);
+				if (!checkfile.good())
+				{
+					//if directory listing is on, we list the directory
+					if (it->getDirectoryListing())
+						//list directory and exit 
+					else
+						//if directory listing is off, we send an error 
+					return;
+				}
+			}
+			//if redirect exists, we check if method is allowed, if yes we set path to the redirection path
+			else if (it->checkValidMethod("GET"))
+				path = it->getRedirect();
+			//else we send an error and return
+			else
+			{
+				//send error here
+				return;
+			}
+			break;
+		}
+	}
+
+	//get file and check if it exists
+	path = _root + path;
+	std::ifstream file(path);
+	if (file.good())
+		response_buffer << file.rdbuf();
+	else
+	{
+		status_code = 404;
+		file = std::ifstream(_root + _error_pages[status_code]);
+		response_buffer << file.rdbuf();
+	}
+	_sendResponse(fd, response_buffer.str(), status_code, "text/html");
 }
 
 void Server::_handlePostRequest(Message &request, int fd)
@@ -232,8 +283,6 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 
 	response = response_status_line + response_headers + "\r\n" + response_body;
 
-	//utiliser ca plutot
-
 	// if (send(fd, response.c_str(), response.size(), 0) < 0)
 	// {
 	// 	std::cerr << "Error sending response" << std::endl;
@@ -253,4 +302,34 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 int Server::get_sock_fd(void) const
 {
 	return (_socketfd);
+}
+
+bool Server::_checkAndHandleDirectoryListing(std::string& path)
+{
+	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
+	{
+		//if location exists and no redirections
+		if (it->getLocation() == path && it->getRedirects().size() == 0)
+		{
+			//then we check if we are on a directory && if directory listing is on
+			std::ifstream file(_root + path);
+			if (!file.good())
+			{
+				//if directory listing is on, we list the directory
+				if (it->getDirectoryListing())
+				{
+					//list the directory
+					//return true to indicate that we handled the directory listing
+					return (true); 
+				}
+				else
+				{
+					//if directory listing is off, we send an error and return true 
+					return (true);
+				}
+			}
+			
+		}
+	}
+	return (false);
 }
