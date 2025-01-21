@@ -22,11 +22,10 @@ Server::Server(ConfigServer &server)
 	_default_file = server.getDefaultFile();
 	_locations = server.getLocations();
 	_error_pages = server.getErrorPages();
+	_socketfd = -1;
 	// _cookies = server.getCookies();
 
 	// Init response codes here
-
-	_init_sockets();
 }
 
 Server::Server(const Server &copy)
@@ -43,7 +42,8 @@ Server::~Server()
 			close(it->first);
 		}
 	}
-	close(_socketfd);
+	if (_socketfd > 0)
+		close(_socketfd);
 }
 
 Server &Server::operator=(const Server &copy)
@@ -57,7 +57,11 @@ Server &Server::operator=(const Server &copy)
 		_default_file = copy._default_file;
 		_locations = copy._locations;
 		_error_pages = copy._error_pages;
-		// _cookies = copy._cookies;
+		_socketfd = copy._socketfd;
+		_addr = copy._addr;
+		_addrlen = copy._addrlen;
+		_request = copy._request;
+		_cookies = copy._cookies;
 	}
 	return (*this);
 }
@@ -79,7 +83,7 @@ Order of functions :
 4. call bind to bind the socket to the address and port number
 5. call listen to listen for incoming connections
 */
-void Server::_init_sockets()
+void Server::init_sockets()
 {
 	// Create a new socket
 	if ((_socketfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)

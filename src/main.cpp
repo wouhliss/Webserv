@@ -8,7 +8,7 @@ std::map<int, std::string> request_buffer;
 std::map<int, std::string> response_buffer;
 std::map<int, bool> sock_fd;
 std::map<int, int> fd_to_sock;
-std::vector<Server *> servers;
+std::vector<Server> servers;
 
 bool check_extension(std::string filename)
 {
@@ -113,11 +113,11 @@ void loop_handle()
 							  << message.getHttpVersion() << '\n'
 							  << std::endl;
 
-					for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+					for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
 					{
-						if ((*it)->get_sock_fd() == fd_to_sock[i])
+						if ((*it).get_sock_fd() == fd_to_sock[i])
 						{
-							(*it)->handle_response(i);
+							(*it).handle_response(i);
 						}
 					}
 
@@ -144,11 +144,11 @@ void loop_handle()
 					  << message.getHttpVersion() << '\n'
 					  << std::endl;
 
-			for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
+			for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
 			{
-				if ((*it)->get_sock_fd() == fd_to_sock[i])
+				if ((*it).get_sock_fd() == fd_to_sock[i])
 				{
-					(*it)->handle_response(i);
+					(*it).handle_response(i);
 				}
 			}
 
@@ -202,16 +202,14 @@ int main(int argc, char **argv)
 					  << it->getHostaddr() << '\n'
 					  << it->getPort() << '\n'
 					  << std::endl;
-			servers.push_back(new Server(*it));
+
+			servers.push_back(Server(*it));
+			servers.back().init_sockets();
 		}
 		signal(SIGINT, siginthandle);
 		while (loop)
 		{
 			loop_handle();
-		}
-		for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); ++it)
-		{
-			delete *it;
 		}
 	}
 	catch (std::exception &e)

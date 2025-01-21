@@ -30,9 +30,6 @@ private:
 	std::map<int, std::string> _error_pages;
 	std::map<int, std::string> _cookies;
 
-	// main function to start server
-	void _init_sockets();
-
 	// Handle incoming requests
 	void _handle_request(int fd);
 	// Handle response messages
@@ -58,6 +55,8 @@ public:
 	void fetch();
 	void handle_response(int fd);
 	int get_sock_fd() const;
+	// main function to start server
+	void init_sockets();
 };
 
 #endif
