@@ -210,6 +210,7 @@ void Server::_handleGetRequest(Message &request, int fd)
 			return;
 		}
 	}
+
 	file.open(std::string(_root + request.getRequestTarget()).c_str());
 	if (!file.good())
 	{
@@ -326,6 +327,53 @@ void Server::_handleInvalidRequest(Message &request, int fd)
 {
 	(void)request;
 	(void)fd;
+}
+
+void Server::_sendFile(int fd, const std::string &filepath)
+{
+	std::string 		path = _root + filepath;
+	std::ifstream 		file(path.c_str());
+	std::stringstream 	response_buffer;
+
+	if (file.good())
+	{
+		response_buffer << file.rdbuf();
+		_sendResponse(fd, response_buffer.str(), 200, "text/html");
+	}
+	else
+	{
+		file.open((_root + _error_pages[404]).c_str());
+		if (!file.good())
+		{
+			_sendResponse(fd, std::string("<h1>Not found</h1>"), 404, std::string("text/html"));
+			return;
+		}
+		response_buffer << file.rdbuf();
+		_sendResponse(fd, response_buffer.str(), 404, std::string("text/html"));
+		return;
+	}
+}
+
+void Server::_sendError(int fd, int status_code)
+{
+	std::string 		path = _root;
+	std::stringstream 	error_buffer;
+
+	//check if error page is defined
+	if (_error_pages.find(status_code) == _error_pages.end())
+	{
+		//use default error page or maybe add an equivalency table of error codes to basic error messages
+		return;
+	}
+	path += _error_pages[status_code];
+	std::ifstream		errorPage(path.c_str());
+	if (!errorFile.good())
+	{
+		//use default error page or maybe add an equivalency table of error codes to basic error messages
+		return;
+	}
+	error_buffer << errorPage.rdbuf();
+	_sendResponse(fd, error_buffer.str(), status_code, "text/html");
 }
 
 void Server::_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type)

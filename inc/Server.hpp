@@ -44,9 +44,9 @@ private:
 	void _handleInvalidRequest(Message &request, int fd);
 
 	// send response and access files
-	std::string _getFileBuffer(const std::string &filepath);
-	sdt::string	_getErrorBuffer(int status_code);
-	void 		_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type);
+	void	_sendFile(int fd, const std::string &filepath);
+	void	_sendError(int fd, int status_code);
+	void 	_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type);
 
 public:
 	Server();
