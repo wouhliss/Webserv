@@ -299,11 +299,11 @@ void Server::_handlePostRequest(Message &request, int fd)
 	//check that content length header is present and that boduy isnt too big nor empty, otherwise send 413
 	if (content_length = stoi(request.getHeader("Content-Length")) == 0 || content_length > _max_body_size)
 	{
-		//send correct error page, see if need a specific send error function
+		_sendError(fd, 413);
 		return;
 	}
 
-
+	//check features to add here hehe
 }
 
 void Server::_handleDeleteRequest(Message &request, int fd)
