@@ -62,6 +62,11 @@ Server &Server::operator=(const Server &copy)
 	return (*this);
 }
 
+int Server::get_sock_fd(void) const
+{
+	return (_socketfd);
+}
+
 // Main function launched at startup, that will init all the sockets
 /*
 Order of functions :
@@ -141,12 +146,7 @@ void Server::handle_response(int fd)
 	Message request = messageParser::parseMessage(request_buffer[fd]);
 	// we check if the request is a valid request
 	if (request._isValidRequest())
-	{
-		// then we handle the request
 		_treatRequest(request, fd);
-
-		// we write an answer based on the method invoqued
-	}
 }
 
 void Server::_treatRequest(Message &request, int fd)
@@ -291,6 +291,18 @@ void Server::_handlePostRequest(Message &request, int fd)
 {
 	(void)request;
 	(void)fd;
+
+	std::string path = request.getPath();
+	int 		content_length = 0;
+
+	//check that content length header is present and that boduy isnt too big nor empty, otherwise send 413
+	if (content_length = stoi(request.getHeader("Content-Length")) == 0 || content_length > _max_body_size)
+	{
+		//send correct error page, see if need a specific send error function
+		return;
+	}
+
+
 }
 
 void Server::_handleDeleteRequest(Message &request, int fd)
@@ -356,38 +368,4 @@ void Server::_sendResponse(int fd, const std::string &body_buffer, int status_co
 
 	// c quoi cette merde
 	response_buffer[fd] = response;
-}
-
-int Server::get_sock_fd(void) const
-{
-	return (_socketfd);
-}
-
-bool Server::_checkAndHandleDirectoryListing(std::string &path)
-{
-	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
-	{
-		// if location exists and no redirections
-		if (it->getPath() == path && it->getRedirects().size() == 0)
-		{
-			// then we check if we are on a directory && if directory listing is on
-			std::ifstream file((_root + path).c_str());
-			if (!file.good())
-			{
-				// if directory listing is on, we list the directory
-				if (it->getDirectoryListing())
-				{
-					// list the directory
-					// return true to indicate that we handled the directory listing
-					return (true);
-				}
-				else
-				{
-					// if directory listing is off, we send an error and return true
-					return (true);
-				}
-			}
-		}
-	}
-	return (false);
 }

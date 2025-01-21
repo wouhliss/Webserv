@@ -43,10 +43,10 @@ private:
 	void _handleDeleteRequest(Message &request, int fd);
 	void _handleInvalidRequest(Message &request, int fd);
 
-	bool _checkAndHandleDirectoryListing(std::string &path);
-
-	// send response
-	void _sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type);
+	// send response and access files
+	std::string _getFileBuffer(const std::string &filepath);
+	sdt::string	_getErrorBuffer(int status_code);
+	void 		_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type);
 
 public:
 	Server();

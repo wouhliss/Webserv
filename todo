@@ -10,8 +10,7 @@
 		- Add better delimiter for all edge cases (special function for it)
 	- Handle response :
 		- Code verify message functions
-	- Send response function : 
-		- Utiliser le send de la fonction sendmessage
+	- Fonction open file that retrives the correct buffer + handles errors
 	- GET :
 	- POST :
 	- DELETE :
