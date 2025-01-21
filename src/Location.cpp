@@ -7,7 +7,7 @@ Location::Location()
 	_directory_listing = false;
 }
 
-Location::Location(const Location& copy)
+Location::Location(const Location &copy)
 {
 	*this = copy;
 }
@@ -16,7 +16,7 @@ Location::~Location()
 {
 }
 
-Location& Location::operator=(const Location &copy)
+Location &Location::operator=(const Location &copy)
 {
 	if (this == &copy)
 		return (*this);
@@ -27,8 +27,7 @@ Location& Location::operator=(const Location &copy)
 	return (*this);
 }
 
-
-bool	Location::checkValidMethod(std::string &s)
+bool Location::checkValidMethod(const char *s)
 {
 	const std::string methods[] = ALLOWED_METHODS;
 
@@ -40,21 +39,20 @@ bool	Location::checkValidMethod(std::string &s)
 	return (false);
 }
 
-
-void	Location::setPath(string &s)
+void Location::setPath(string &s)
 {
 	_path = s;
 }
 
-void	Location::setRedirects(string &s)
+void Location::setRedirects(string &s)
 {
 	_redirects = s;
 }
 
-void	Location::setAllowedMethods(string &s)
+void Location::setAllowedMethods(string &s)
 {
-	std::string	method;
-	size_t		pos;
+	std::string method;
+	size_t pos;
 
 	while ((pos = s.find(" ")) != std::string::npos)
 	{
@@ -62,12 +60,12 @@ void	Location::setAllowedMethods(string &s)
 		_allowed_methods.push_back(method);
 		s.erase(0, pos + 1);
 	}
-	if (!_checkValidMethod(s))
+	if (!checkValidMethod(s.c_str()))
 		throw std::runtime_error("Error: invalid method in allowed_methods");
 	_allowed_methods.push_back(s);
 }
 
-void	Location::setDirectoryListing(string &s)
+void Location::setDirectoryListing(string &s)
 {
 	if (s == "on")
 		_directory_listing = true;
@@ -77,22 +75,22 @@ void	Location::setDirectoryListing(string &s)
 		throw std::runtime_error("Error: directory_listing's value must be set to 'on' or 'off'");
 }
 
-string&						Location::getPath()
+string &Location::getPath()
 {
 	return (_path);
 }
 
-string&						Location::getRedirects()
+string &Location::getRedirects()
 {
 	return (_redirects);
 }
 
-std::vector<std::string>&	Location::getAllowedMethods()
+std::vector<std::string> &Location::getAllowedMethods()
 {
 	return (_allowed_methods);
 }
 
-bool&						Location::getDirectoryListing()
+bool &Location::getDirectoryListing()
 {
 	return (_directory_listing);
 }

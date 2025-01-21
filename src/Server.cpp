@@ -155,7 +155,7 @@ void Server::_treatRequest(Message &request, int fd)
 	std::string method = request.getMethod();
 	if (method == "GET")
 	{
-		// _handleGetRequest(request, fd);
+		_handleGetRequest(request, fd);
 	}
 	else if (method == "POST")
 	{
@@ -173,60 +173,119 @@ void Server::_treatRequest(Message &request, int fd)
 
 void Server::_handleGetRequest(Message &request, int fd)
 {
-	std::stringstream 	response_buffer;
-	std::string 		filepath = request.getRequestTarget();
-	std::string			path = filepath + _default_file;
-	int					status_code = 200;
+	std::stringstream response_buffer;
+	std::ifstream file;
+	std::string path;
 
-	//handle special cases -> cookies / cgi, that needs treated differently
-
-	//handles redirections
 	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
 	{
-		//redirection exists
-		if (it->getLocation() == filepath)
+		if (request.getRequestTarget() == (*it).getPath())
 		{
-			//if redirection empty, check for directory listing
-			if (it->getRedirects().size() == 0)
+			path = _root + (*it).getPath() + "/" + _default_file;
+			file.open(path.c_str());
+			if (!file.good())
 			{
-				//we check if we are on a directory && if directory listing is on
-				std::ifstream checkfile(_root + path);
-				if (!checkfile.good())
+				path = _root + (*it).getPath();
+				if ((*it).getDirectoryListing())
 				{
-					//if directory listing is on, we list the directory
-					if (it->getDirectoryListing())
-						//list directory and exit 
-					else
-						//if directory listing is off, we send an error 
+					struct stat info;
+					if (stat(path.c_str(), &info) == 0 && (info.st_mode & S_IFDIR))
+					{
+						_sendResponse(fd, std::string("<h1>directory here</h1>"), 200, std::string("text/html"));
+						return;
+					}
+				}
+				file.open((_root + _error_pages[404]).c_str());
+				if (!file.good())
+				{
+					_sendResponse(fd, std::string("<h1>Not found</h1>"), 404, std::string("text/html"));
 					return;
 				}
-			}
-			//if redirect exists, we check if method is allowed, if yes we set path to the redirection path
-			else if (it->checkValidMethod("GET"))
-				path = it->getRedirect();
-			//else we send an error and return
-			else
-			{
-				//send error here
+				response_buffer << file.rdbuf();
+				_sendResponse(fd, response_buffer.str(), 404, std::string("text/html"));
 				return;
 			}
-			break;
+			response_buffer << file.rdbuf();
+			_sendResponse(fd, response_buffer.str(), 200, std::string("text/html"));
+			return;
 		}
 	}
-
-	//get file and check if it exists
-	path = _root + path;
-	std::ifstream file(path);
-	if (file.good())
-		response_buffer << file.rdbuf();
-	else
+	file.open(std::string(_root + request.getRequestTarget()).c_str());
+	if (!file.good())
 	{
-		status_code = 404;
-		file = std::ifstream(_root + _error_pages[status_code]);
+		file.open((_root + _error_pages[404]).c_str());
+		if (!file.good())
+		{
+			_sendResponse(fd, std::string("<h1>Not found</h1>"), 404, std::string("text/html"));
+			return;
+		}
 		response_buffer << file.rdbuf();
+		_sendResponse(fd, response_buffer.str(), 404, std::string("text/html"));
+		return;
 	}
-	_sendResponse(fd, response_buffer.str(), status_code, "text/html");
+	response_buffer << file.rdbuf();
+	_sendResponse(fd, response_buffer.str(), 200, std::string("text/html"));
 }
+
+// void Server::_handleGetRequest(Message &request, int fd)
+// {
+// 	std::stringstream response_buffer;
+// 	std::string filepath = request.getRequestTarget();
+// 	// std::string path = filepath + _default_file;
+// 	int status_code = 200;
+
+// 	// handle special cases -> cookies / cgi, that needs treated differently
+
+// 	// handles redirections
+// 	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
+// 	{
+// 		// redirection exists
+// 		if (it->getPath() == filepath)
+// 		{
+// 			// if redirection empty, check for directory listing
+// 			if (it->getRedirects().size() == 0)
+// 			{
+// 				// we check if we are on a directory && if directory listing is on
+// 				std::ifstream checkfile((_root + filepath).c_str());
+// 				if (!checkfile.good())
+// 				{
+// 					// if directory listing is on, we list the directory
+// 					if (it->getDirectoryListing())
+// 						return;
+// 					else
+// 						// if directory listing is off, we send an error
+// 						return;
+// 				}
+// 			}
+// 			// if redirect exists, we check if method is allowed, if yes we set path to the redirection path
+// 			else if (it->checkValidMethod("GET"))
+// 				filepath = it->getRedirects();
+// 			// else we send an error and return
+// 			else
+// 			{
+// 				// send error here
+// 				return;
+// 			}
+// 			break;
+// 		}
+// 	}
+
+// 	// get file and check if it exists
+// 	std::cerr
+// 		<< "root: " << _root << "\n"
+// 		<< "path: " << filepath << std::endl;
+// 	// path = _root + path;
+// 	std::ifstream file(filepath.c_str());
+// 	if (file.good())
+// 		response_buffer << file.rdbuf();
+// 	else
+// 	{
+// 		status_code = 404;
+// 		file.open((_root + _error_pages[status_code]).c_str());
+// 		response_buffer << file.rdbuf();
+// 	}
+// 	_sendResponse(fd, response_buffer.str(), status_code, "text/html");
+// }
 
 void Server::_handlePostRequest(Message &request, int fd)
 {
@@ -257,7 +316,7 @@ void Server::_handleInvalidRequest(Message &request, int fd)
 	(void)fd;
 }
 
-void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std::string type)
+void Server::_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type)
 {
 	(void)fd;
 	(void)body_buffer;
@@ -276,9 +335,9 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 	// add stuff for cookies here
 	// add necessary headers here
 
-	response_body = "test";
+	response_body = body_buffer;
 
-	response_headers += "Content-Type: text/html\r\n";
+	response_headers += "Content-Type: " + type + "\r\n";
 	response_headers += "Content-Length: " + SSTR(response_body.size()) + "\r\n";
 
 	response = response_status_line + response_headers + "\r\n" + response_body;
@@ -295,7 +354,7 @@ void Server::_sendResponse(int fd, std::string body_buffer, int status_code, std
 	// 	}
 	// }
 
-	//c quoi cette merde
+	// c quoi cette merde
 	response_buffer[fd] = response;
 }
 
@@ -304,31 +363,30 @@ int Server::get_sock_fd(void) const
 	return (_socketfd);
 }
 
-bool Server::_checkAndHandleDirectoryListing(std::string& path)
+bool Server::_checkAndHandleDirectoryListing(std::string &path)
 {
 	for (std::vector<Location>::iterator it = _locations.begin(); it != _locations.end(); ++it)
 	{
-		//if location exists and no redirections
-		if (it->getLocation() == path && it->getRedirects().size() == 0)
+		// if location exists and no redirections
+		if (it->getPath() == path && it->getRedirects().size() == 0)
 		{
-			//then we check if we are on a directory && if directory listing is on
-			std::ifstream file(_root + path);
+			// then we check if we are on a directory && if directory listing is on
+			std::ifstream file((_root + path).c_str());
 			if (!file.good())
 			{
-				//if directory listing is on, we list the directory
+				// if directory listing is on, we list the directory
 				if (it->getDirectoryListing())
 				{
-					//list the directory
-					//return true to indicate that we handled the directory listing
-					return (true); 
+					// list the directory
+					// return true to indicate that we handled the directory listing
+					return (true);
 				}
 				else
 				{
-					//if directory listing is off, we send an error and return true 
+					// if directory listing is off, we send an error and return true
 					return (true);
 				}
 			}
-			
 		}
 	}
 	return (false);

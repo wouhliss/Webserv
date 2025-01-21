@@ -129,7 +129,6 @@ void loop_handle()
 		if (response_buffer.find(i) != response_buffer.end() && FD_ISSET(i, &writefds))
 		{
 			ssize_t bytes_sent = send(i, response_buffer[i].c_str(), response_buffer.size(), 0);
-			std::cout << "sent " << bytes_sent << " bytes to " << i << " content: " << response_buffer[i].substr(0, bytes_sent) << std::endl;
 			response_buffer[i].erase(0, bytes_sent);
 			if (!response_buffer[i].size())
 				response_buffer.erase(i);
