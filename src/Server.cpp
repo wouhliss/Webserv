@@ -175,6 +175,7 @@ void Server::_treatRequest(Message &request, int fd)
 	}
 }
 
+//rework en utilisant sendFile / sendError
 void Server::_handleGetRequest(Message &request, int fd)
 {
 	std::stringstream response_buffer;
@@ -310,6 +311,7 @@ void Server::_handlePostRequest(Message &request, int fd)
 	//check features to add here hehe
 }
 
+//rework using sendFile and sendError
 void Server::_handleDeleteRequest(Message &request, int fd)
 {
 	(void)fd;

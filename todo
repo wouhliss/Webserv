@@ -2,22 +2,29 @@
 	- Compile and extensive tests
 
 - Main : 
-	- select propre
-	- remettre la boucle au bon endroit, virer les variables globales degueulasses
+	- remettre select et partie socket dans lobjet server
+	- remove global
 
 - Server :
 	- Handle request : 
 		- Add better delimiter for all edge cases (special function for it)
 	- Handle response :
 		- Code verify message functions
-	- Fonction open file that retrives the correct buffer + handles errors
 	- GET :
+		- Rework with send file / error fct
+		- Add a special rule to handle .css files
 	- POST :
 	- DELETE :
 		- Handle edgecases
 
+- CGI stuff : 
+	- Add a check for the default cgi location in the config file
+		- ex : location ~ \.js$
+		- add a "cgi" field to specify a binary to execute, otherwise serve default filex
+
 - Autre 
 	- custom close pour fd
+	- Handle default error pages if none are provided (dans le sujet)
 
 
 Clean final: 
