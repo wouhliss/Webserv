@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:22:06 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:35:46 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ public:
 	std::string &getRoot(void);
 	std::string &getDefaultFile(void);
 
+	void initSocket(void);
+
 private:
 	std::string _hostname;
 	int _port;
@@ -56,5 +58,8 @@ private:
 	std::string _default_file;
 	std::vector<Location> _locations;
 	std::map<int, std::string> _error_pages;
+	int _sockfd;
+	struct sockaddr_in _addr;
+	id_t _addr_len;
 };
 #endif

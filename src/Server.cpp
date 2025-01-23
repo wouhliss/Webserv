@@ -6,13 +6,13 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:29:54 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:58:58 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
 
-Server::Server()
+Server::Server() : _sockfd(-1)
 {
 }
 
@@ -23,6 +23,8 @@ Server::Server(const Server &server)
 
 Server::~Server()
 {
+	if (_sockfd > 0)
+		close(_sockfd);
 }
 
 Server &Server::operator=(const Server &copy)
@@ -37,7 +39,54 @@ Server &Server::operator=(const Server &copy)
 	_default_file = copy._default_file;
 	_locations = copy._locations;
 	_error_pages = copy._error_pages;
+	_sockfd = copy._sockfd;
 	return (*this);
+}
+
+void Server::initSocket(void)
+{
+	char cwd[PATH_MAX];
+
+	_root = std::string(getcwd(cwd, sizeof(cwd))) + "/" + _root;
+
+	_addr.sin_family = AF_INET;
+	_addr.sin_port = htons(_port);
+	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	_addr_len = sizeof(_addr);
+
+	if ((_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		std::cerr << "Could not create socket." << std::endl;
+		return;
+	}
+
+	int opt = 1;
+	if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+	{
+		close(_sockfd);
+		std::cerr << "Could not set socket options." << std::endl;
+		return;
+	}
+
+	fcntl(_sockfd, F_SETFL, fcntl(_sockfd, F_GETFL, 0) | O_NONBLOCK);
+
+	max_fd = _sockfd;
+	sockfd_to_server[_sockfd] = this;
+	FD_SET(_sockfd, &current_fds);
+
+	if (bind(_sockfd, (struct sockaddr *)&_addr, _addr_len) < 0)
+	{
+		close(_sockfd);
+		std::cerr << "Could not bind socket." << std::endl;
+		return;
+	}
+
+	if (listen(_sockfd, 10) < 0)
+	{
+		close(_sockfd);
+		std::cerr << "Could not listen to socket." << std::endl;
+		return;
+	}
 }
 
 typedef struct ParserBlock
@@ -53,14 +102,12 @@ inline std::string &rtrim(std::string &s)
 	return s;
 }
 
-// trim from beginning of string (left)
 inline std::string &ltrim(std::string &s)
 {
 	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
 	return s;
 }
 
-// trim from both ends of string (right then left)
 inline std::string &trim_spaces(std::string &s)
 {
 	return ltrim(rtrim(s));
@@ -105,7 +152,6 @@ void parseLine(const std::string &line, Server &current_server, ParserBlock &par
 	std::string key;
 	std::string value;
 
-	// get key and value
 	key = line.substr(0, line.find_first_of(":"));
 	key = trim_spaces(key);
 	value = line.substr(line.find_first_of(":") + 1);
@@ -134,28 +180,22 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 	if (!infile.is_open())
 		throw std::runtime_error("Error: could not open file");
 
-	// initial position
 	parser_position.server = false;
 	parser_position.error = false;
 	parser_position.location = false;
 
 	while (std::getline(infile, line))
 	{
-
-		// We remove the leading and trailing whitespaces
 		line = trim_spaces(line);
 
-		// We skip empty lines and comments
 		if (line.empty() || line[0] == '#')
 			continue;
 
-		// We check the main blocks: server, error and location
 		if (line == "server:")
 		{
 			parser_position.server = true;
 			parser_position.error = false;
 			parser_position.location = false;
-			// check if this is the first server block, see if this works actually, and if the vector shouldnt contain references or pointers
 			servers.push_back(Server());
 			continue;
 		}
@@ -175,11 +215,10 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 				throw std::runtime_error("Error: location block outside of server block");
 			parser_position.location = true;
 			parser_position.error = false;
-			servers.back().addLocation(); // we create a new location for this block
+			servers.back().addLocation();
 			continue;
 		}
 
-		// If inside a server block, we parse the line and its values
 		if (parser_position.server == false)
 			throw std::runtime_error("Error: block outside of server block");
 		parseLine(line, servers.back(), parser_position);

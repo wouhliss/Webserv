@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 15:52:32 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 16:46:21 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,11 @@
 					.str()
 
 bool check_extension(const std::string &str);
+
+class Server;
+
+extern int max_fd;
+extern std::map<int, Server *> sockfd_to_server;
+extern fd_set current_fds, write_fds, read_fds;
 
 #endif
