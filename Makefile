@@ -56,7 +56,10 @@ down:
 purge: down
 	docker system prune -af
 
-run: down
+build: down
+	docker compose build
+
+run: build
 	docker compose up -d
 
 runpurge: purge

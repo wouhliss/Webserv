@@ -1,62 +1,60 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
+/*   Updated: 2025/01/23 16:22:06 by wouhliss         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../inc/includes.hpp"
-#include "../inc/ConfigServer.hpp"
-#include "../inc/Location.hpp"
-#include "../inc/Message.hpp"
-#include "../inc/messageParser.hpp"
+#pragma once
+#ifndef __SERVER_HPP__
+#define __SERVER_HPP__
 
-#define SRV_RECV_BUFFER_SIZE 4096
-#define SRV_RECV_LOOP_LENGTH 255
+#include <webserv.hpp>
+
+class Location;
 
 class Server
 {
-private:
-	// innate and network attributes
-	int _socketfd;
-	struct sockaddr_in _addr;
-	std::string _request;
-	id_t _addrlen;
-	// int _global_client_id;
+public:
+	Server();
+	Server(const Server &server);
+	~Server();
+	Server &operator=(const Server &copy);
+	static std::vector<Server> parseConfigFile(const std::string &filename);
 
-	// Attributes to receive from config
-	size_t _port;
+	void addLocation(void);
+
+	void updateErrorPage(const int error_code, const std::string &value);
+
+	void setHostname(const std::string &value);
+	void setPort(const int value);
+	void setServerName(const std::string &value);
+	void setMaxBodySize(const std::size_t value);
+	void setRoot(const std::string &value);
+	void setDefaultFile(const std::string &value);
+
+	std::vector<Location> &getLocations(void);
+	std::map<int, std::string> &getErrorPages(void);
+	std::string &getHostname(void);
+	int getPort(void) const;
+	std::string &getServerName(void);
+	std::size_t getMaxBodySize(void) const;
+	std::string &getRoot(void);
+	std::string &getDefaultFile(void);
+
+private:
+	std::string _hostname;
+	int _port;
 	std::string _server_name;
+	std::size_t _max_body_size;
 	std::string _root;
-	size_t _max_body_size;
 	std::string _default_file;
 	std::vector<Location> _locations;
 	std::map<int, std::string> _error_pages;
-	std::map<int, std::string> _cookies;
-
-	// Handle incoming requests
-	void _handle_request(int fd);
-	// Handle response messages
-	// All request handling functions
-	void _treatRequest(Message &request, int fd);
-	void _handleGetRequest(Message &request, int fd);
-	void _handlePostRequest(Message &request, int fd);
-	void _handleDeleteRequest(Message &request, int fd);
-	void _handleInvalidRequest(Message &request, int fd);
-
-	// send response and access files
-	void	_sendFile(int fd, const std::string &filepath);
-	void	_sendError(int fd, int status_code);
-	void 	_sendResponse(int fd, const std::string &body_buffer, int status_code, const std::string &type);
-
-public:
-	Server();
-	Server(ConfigServer &server);
-	Server(const Server &copy);
-	~Server();
-	Server &operator=(const Server &copy);
-
-	void fetch();
-	void handle_response(int fd);
-	int get_sock_fd() const;
-	// main function to start server
-	void init_sockets();
 };
-
 #endif

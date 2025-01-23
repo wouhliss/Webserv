@@ -1,37 +1,42 @@
-#ifndef LOCATION_HPP
-#define LOCATION_HPP
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Location.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/23 15:50:59 by wouhliss          #+#    #+#             */
+/*   Updated: 2025/01/23 16:13:34 by wouhliss         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../inc/includes.hpp"
+#pragma once
+#ifndef __LOCATION_HPP__
+#define __LOCATION_HPP__
 
-using std::string;
-
-#define ALLOWED_METHODS {"GET", "POST", "DELETE"}
+#include <webserv.hpp>
 
 class Location
 {
-private:
-	string _path;
-	string _redirects;
-	std::vector<std::string> _allowed_methods;
-	bool _directory_listing;
-
 public:
 	Location();
-	Location(const Location &copy);
 	~Location();
-	Location &operator=(const Location &copy);
 
-	void setPath(string &s);
-	void setRedirects(string &s);
-	void setAllowedMethods(string &s);
-	void setDirectoryListing(string &s);
+	void addAllowedMethod(const std::string &value);
 
-	string &getPath();
-	string &getRedirects();
-	std::vector<std::string> &getAllowedMethods();
-	bool &getDirectoryListing();
+	void setPath(const std::string &value);
+	void setRedirect(const std::string &value);
+	void setDirectoryListing(const bool value);
 
-	bool checkValidMethod(const char *s);
+	uint8_t getAllowedMethods(void) const;
+	std::string &getPath(void);
+	std::string &getRedirect(void);
+	bool getDirectoryListing(void) const;
+
+private:
+	std::string _path;
+	uint8_t _allowed_methods;
+	bool _directory_listing;
+	std::string _redirect;
 };
-
 #endif

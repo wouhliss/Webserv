@@ -1,96 +1,72 @@
-#include "../inc/Location.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Location.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/23 16:13:39 by wouhliss          #+#    #+#             */
+/*   Updated: 2025/01/23 16:24:46 by wouhliss         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <Location.hpp>
 
 Location::Location()
 {
-	_path = "";
-	_redirects = "";
-	_directory_listing = false;
-}
-
-Location::Location(const Location &copy)
-{
-	*this = copy;
 }
 
 Location::~Location()
 {
 }
 
-Location &Location::operator=(const Location &copy)
+void Location::addAllowedMethod(const std::string &value)
 {
-	if (this == &copy)
-		return (*this);
-	_path = copy._path;
-	_redirects = copy._redirects;
-	_allowed_methods = copy._allowed_methods;
-	_directory_listing = copy._directory_listing;
-	return (*this);
-}
-
-bool Location::checkValidMethod(const char *s)
-{
-	const std::string methods[] = ALLOWED_METHODS;
-
-	for (size_t i = 0; i < sizeof(methods) / sizeof(methods[0]); i++)
+	if (value == "GET")
 	{
-		if (s == methods[i])
-			return (true);
+		_allowed_methods |= 0b0001;
 	}
-	return (false);
-}
-
-void Location::setPath(string &s)
-{
-	_path = s;
-}
-
-void Location::setRedirects(string &s)
-{
-	_redirects = s;
-}
-
-void Location::setAllowedMethods(string &s)
-{
-	std::string method;
-	size_t pos;
-
-	while ((pos = s.find(" ")) != std::string::npos)
+	else if (value == "POST")
 	{
-		method = s.substr(0, pos);
-		_allowed_methods.push_back(method);
-		s.erase(0, pos + 1);
+		_allowed_methods |= 0b0010;
 	}
-	if (!checkValidMethod(s.c_str()))
-		throw std::runtime_error("Error: invalid method in allowed_methods");
-	_allowed_methods.push_back(s);
+	else if (value == "DELETE")
+	{
+		_allowed_methods |= 0b0100;
+	}
 }
 
-void Location::setDirectoryListing(string &s)
+void Location::setPath(const std::string &value)
 {
-	if (s == "on")
-		_directory_listing = true;
-	else if (s == "off")
-		_directory_listing = false;
-	else
-		throw std::runtime_error("Error: directory_listing's value must be set to 'on' or 'off'");
+	_path = value;
 }
 
-string &Location::getPath()
+void Location::setRedirect(const std::string &value)
 {
-	return (_path);
+	_redirect = value;
 }
 
-string &Location::getRedirects()
+void Location::setDirectoryListing(const bool value)
 {
-	return (_redirects);
+	_directory_listing = value;
 }
 
-std::vector<std::string> &Location::getAllowedMethods()
+uint8_t Location::getAllowedMethods(void) const
 {
 	return (_allowed_methods);
 }
 
-bool &Location::getDirectoryListing()
+std::string &Location::getPath(void)
+{
+	return (_path);
+}
+
+std::string &Location::getRedirect(void)
+{
+	return (_redirect);
+}
+
+bool Location::getDirectoryListing(void) const
 {
 	return (_directory_listing);
 }
