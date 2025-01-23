@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:07:02 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 17:57:13 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ void parseLocationBlock(const std::string &key, const std::string &value, Server
 
 extern int max_fd;
 extern std::map<int, Server *> sockfd_to_server;
+extern std::map<int, int> fd_to_sockfd;
 extern fd_set current_fds, write_fds, read_fds;
 
 #endif

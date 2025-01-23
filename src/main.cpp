@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:00:51 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 18:00:30 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void loop_handle()
 				{
 					FD_CLR(i, &current_fds);
 					if (close(i) < 0)
-						std::cerr << "Error closing fd " << i << std::endl;
+						throw std::runtime_error("Error: Could not close socket");
 					fd_to_sockfd.erase(i);
 					return;
 				}

@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:06:28 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 17:59:36 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@ Server::~Server()
 {
 	if (_sockfd > 0)
 		close(_sockfd);
+	for (std::map<int, int>::iterator it = fd_to_sockfd.begin(); it != fd_to_sockfd.end(); ++it)
+	{
+		if (it->second == _sockfd)
+			close(it->first);
+	}
 }
 
 Server &Server::operator=(const Server &copy)
@@ -55,38 +60,24 @@ void Server::initSocket(void)
 	_addr_len = sizeof(_addr);
 
 	if ((_sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	{
-		std::cerr << "Could not create socket." << std::endl;
-		return;
-	}
+		throw std::runtime_error("Error: Could not create socket");
 
 	int opt = 1;
 	if (setsockopt(_sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-	{
-		close(_sockfd);
-		std::cerr << "Could not set socket options." << std::endl;
-		return;
-	}
+		throw std::runtime_error("Error: Could not set socket options");
 
-	fcntl(_sockfd, F_SETFL, fcntl(_sockfd, F_GETFL, 0) | O_NONBLOCK);
+	if (fcntl(_sockfd, F_SETFL, fcntl(_sockfd, F_GETFL, 0) | O_NONBLOCK) < 0)
+		throw std::runtime_error("Error: Could not set socket options");
 
 	max_fd = _sockfd;
 	sockfd_to_server[_sockfd] = this;
 	FD_SET(_sockfd, &current_fds);
 
 	if (bind(_sockfd, (struct sockaddr *)&_addr, _addr_len) < 0)
-	{
-		close(_sockfd);
-		std::cerr << "Could not bind socket." << std::endl;
-		return;
-	}
+		throw std::runtime_error("Error: Could not bind socket");
 
 	if (listen(_sockfd, 10) < 0)
-	{
-		close(_sockfd);
-		std::cerr << "Could not listen to socket." << std::endl;
-		return;
-	}
+		throw std::runtime_error("Error: Could not listen to socket");
 }
 
 std::vector<Server> Server::parseConfigFile(const std::string &filename)
