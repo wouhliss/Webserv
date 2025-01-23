@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:46:21 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 17:07:02 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,36 @@
 					(std::ostringstream() << std::dec << x)) \
 					.str()
 
-bool check_extension(const std::string &str);
+inline std::string &rtrim(std::string &s)
+{
+	s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
+	return s;
+}
+
+inline std::string &ltrim(std::string &s)
+{
+	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+	return s;
+}
+
+inline std::string &trim_spaces(std::string &s)
+{
+	return ltrim(rtrim(s));
+}
 
 class Server;
+
+typedef struct ParserBlock
+{
+	bool server;
+	bool error;
+	bool location;
+} t_parser_block;
+
+bool check_extension(const std::string &str);
+void parseLine(const std::string &line, Server &current_server, t_parser_block &parser_position);
+void parseServerBlock(const std::string &key, const std::string &value, Server &current_server);
+void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server);
 
 extern int max_fd;
 extern std::map<int, Server *> sockfd_to_server;

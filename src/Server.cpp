@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:58:58 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/23 17:06:28 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,84 +87,6 @@ void Server::initSocket(void)
 		std::cerr << "Could not listen to socket." << std::endl;
 		return;
 	}
-}
-
-typedef struct ParserBlock
-{
-	bool server;
-	bool error;
-	bool location;
-} t_parser_block;
-
-inline std::string &rtrim(std::string &s)
-{
-	s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
-	return s;
-}
-
-inline std::string &ltrim(std::string &s)
-{
-	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
-	return s;
-}
-
-inline std::string &trim_spaces(std::string &s)
-{
-	return ltrim(rtrim(s));
-}
-
-void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server)
-{
-	Location loc = current_server.getLocations().back();
-
-	if (key == "path")
-		loc.setPath(value);
-	else if (key == "allowed_methods")
-		loc.addAllowedMethod(value);
-	else if (key == "redirects")
-		loc.setRedirect(value);
-	else if (key == "allow_directory_listing")
-		loc.setDirectoryListing(value == "on");
-	else
-		throw std::runtime_error("Error: invalid key in location block");
-}
-
-void parseServerBlock(const std::string &key, const std::string &value, Server &current_server)
-{
-	if (key == "hostaddr")
-		current_server.setHostname(value);
-	else if (key == "port")
-		current_server.setPort(std::atoi(value.c_str()));
-	else if (key == "server_name")
-		current_server.setServerName(value);
-	else if (key == "max_body_size")
-		current_server.setMaxBodySize(std::atoll(value.c_str()));
-	else if (key == "root_directory")
-		current_server.setRoot(value);
-	else if (key == "entry_file")
-		current_server.setDefaultFile(value);
-	else
-		throw std::runtime_error("Error: invalid key in server block");
-}
-
-void parseLine(const std::string &line, Server &current_server, ParserBlock &parser_position)
-{
-	std::string key;
-	std::string value;
-
-	key = line.substr(0, line.find_first_of(":"));
-	key = trim_spaces(key);
-	value = line.substr(line.find_first_of(":") + 1);
-	value = trim_spaces(value);
-
-	if (value.empty())
-		throw std::runtime_error("Error: unknown key");
-	if (parser_position.error == true && parser_position.location == false)
-		current_server.updateErrorPage(std::atoi(key.c_str()), value);
-	else if (parser_position.location == true)
-		parseLocationBlock(key, value, current_server);
-	else
-		parseServerBlock(key, value, current_server);
 }
 
 std::vector<Server> Server::parseConfigFile(const std::string &filename)
