@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:35:46 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/24 11:12:27 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ public:
 	static std::vector<Server> parseConfigFile(const std::string &filename);
 
 	void addLocation(void);
+	void addCgiExtension(const std::string &key, const std::string &value);
 
 	void updateErrorPage(const int error_code, const std::string &value);
 
@@ -37,6 +38,7 @@ public:
 	void setMaxBodySize(const std::size_t value);
 	void setRoot(const std::string &value);
 	void setDefaultFile(const std::string &value);
+	void setCgiBin(const std::string &value);
 
 	std::vector<Location> &getLocations(void);
 	std::map<int, std::string> &getErrorPages(void);
@@ -46,6 +48,8 @@ public:
 	std::size_t getMaxBodySize(void) const;
 	std::string &getRoot(void);
 	std::string &getDefaultFile(void);
+	std::string &getCgiBin(void);
+	std::map<std::string, std::string> &getCgiExtensions(void);
 
 	void initSocket(void);
 
@@ -56,6 +60,8 @@ private:
 	std::size_t _max_body_size;
 	std::string _root;
 	std::string _default_file;
+	std::string	_cgibin;
+	std::map<std::string, std::string> _cgi_extensions;
 	std::vector<Location> _locations;
 	std::map<int, std::string> _error_pages;
 	int _sockfd;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:59:36 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/24 11:14:59 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,12 @@ void Server::addLocation(void)
 	_locations.push_back(Location());
 }
 
+void Server::addCgiExtension(const std::string &key, const std::string &value)
+{
+	if (_cgi_extensions.find(key) == _cgi_extensions.end())
+		_cgi_extensions[key] = value;
+}
+
 void Server::updateErrorPage(const int error_code, const std::string &value)
 {
 	_error_pages[error_code] = value;
@@ -183,6 +189,11 @@ void Server::setRoot(const std::string &value)
 void Server::setDefaultFile(const std::string &value)
 {
 	_default_file = value;
+}
+
+void Server::setCgiBin(const std::string &value)
+{
+	_cgibin = value;
 }
 
 std::vector<Location> &Server::getLocations(void)
@@ -223,4 +234,14 @@ std::string &Server::getRoot(void)
 std::string &Server::getDefaultFile(void)
 {
 	return (_default_file);
+}
+
+std::string &Server::getCgiBin(void)
+{
+	return (_cgibin);
+}
+
+std::map<std::string, std::string> &Server::getCgiExtensions(void)
+{
+	return (_cgi_extensions);
 }

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.cpp                                          :+:      :+:    :+:   */
+/*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:06:23 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/24 11:16:36 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,14 @@ void parseServerBlock(const std::string &key, const std::string &value, Server &
 		current_server.setRoot(value);
 	else if (key == "entry_file")
 		current_server.setDefaultFile(value);
+	else if (key == "cgi_bin")
+		current_server.setCgiBin(value);
+	else if (key == "cgi")
+	{
+		std::string cgiext = value.substr(0, value.find_first_of(" "));
+		std::string cgibin = value.substr(value.find_first_of(" ") + 1);
+		current_server.addCgiExtension(cgiext, cgibin);
+	}
 	else
 		throw std::runtime_error("Error: invalid key in server block");
 }

@@ -1,33 +1,3 @@
-- Parsing config file : 
-	- Compile and extensive tests
-
-- Main : 
-	- remettre select et partie socket dans lobjet server
-	- remove global
-
-- Server :
-	- Handle request : 
-		- Add better delimiter for all edge cases (special function for it)
-	- Handle response :
-		- Code verify message functions
-	- GET :
-		- Rework with send file / error fct
-		- Add a special rule to handle .css files
-	- POST :
-	- DELETE :
-		- Handle edgecases
-
-- CGI stuff : 
-	- Add a check for the default cgi location in the config file
-		- ex : location ~ \.js$
-		- add a "cgi" field to specify a binary to execute, otherwise serve default filex
-
-- Autre 
-	- custom close pour fd
-	- Handle default error pages if none are provided (dans le sujet)
-
-
-Clean final: 
-	- clean servertest dir
-	- voir si clean docker ou pas
-	- voir truc mime.types
+- Parsing config file: 
+	- Add cgi keyword that works like that : "cgi [file extension] [binary]"
+	- Add cgi-bin keyword to define the default cgi repo
