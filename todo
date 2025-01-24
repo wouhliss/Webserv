@@ -1,3 +1,2 @@
-- Parsing config file: 
-	- Add cgi keyword that works like that : "cgi [file extension] [binary]"
-	- Add cgi-bin keyword to define the default cgi repo
+utils.cpp : 
+  - virer fonctions de parsing de utils ?

@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/24 11:14:59 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/24 11:18:44 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ Server &Server::operator=(const Server &copy)
 	_default_file = copy._default_file;
 	_locations = copy._locations;
 	_error_pages = copy._error_pages;
+	_cgi_extensions = copy._cgi_extensions;
+	_cgibin = copy._cgibin;
 	_sockfd = copy._sockfd;
 	return (*this);
 }
