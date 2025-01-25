@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:57:13 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:03:32 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@
 
 #include <Server.hpp>
 #include <Location.hpp>
+#include <Client.hpp>
+#include <Request.hpp>
+#include <Response.hpp>
 
 #define BOLD "\033[1m"
 #define ITALIC "\033[3m"
@@ -48,6 +51,13 @@
 #define YELLOW "\033[33m"
 #define BLUE "\033[34m"
 #define RESET "\033[0m"
+
+#define BUFFER_SIZE 4096
+
+#define NEWLINE "\r\n"
+#define CRLF "\r\n\r\n"
+
+#define HTTP_ERROR_BAD_REQUEST 400
 
 #define SSTR(x) static_cast<std::ostringstream &>(           \
 					(std::ostringstream() << std::dec << x)) \

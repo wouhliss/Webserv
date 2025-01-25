@@ -18,8 +18,9 @@ Class Client
 		Client &operator=(const Client &copy);
 
 		void setFd(const int fd);
-
 		void &getFd(void);
+
+		void Server::readRequest(std::string &buffer);
 
 	private:
 		int	_fd;

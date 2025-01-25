@@ -47,3 +47,11 @@ Client &Client::operator=(const Client &copy)
 	_cgi_pipes[1] = copy._cgi_pipes[1];
 	return *this;
 }
+
+void Client::readRequest(std::string &buffer)
+{
+	if (client._request != NULL)
+	{
+		//add buffer to existing request
+	}
+}

@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/24 11:18:44 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/25 17:31:33 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,9 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 	return (servers);
 }
 
+
+//Other functions
+
 void Server::addLocation(void)
 {
 	_locations.push_back(Location());
@@ -162,6 +165,8 @@ void Server::updateErrorPage(const int error_code, const std::string &value)
 {
 	_error_pages[error_code] = value;
 }
+
+//Getters and Setters
 
 void Server::setHostname(const std::string &value)
 {

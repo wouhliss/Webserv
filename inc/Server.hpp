@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/24 11:12:27 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/24 16:00:38 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <webserv.hpp>
 
 class Location;
+class Client;
 
 class Server
 {
@@ -39,6 +40,8 @@ public:
 	void setRoot(const std::string &value);
 	void setDefaultFile(const std::string &value);
 	void setCgiBin(const std::string &value);
+
+	void readRequest(Client &client, std::string &buffer);
 
 	std::vector<Location> &getLocations(void);
 	std::map<int, std::string> &getErrorPages(void);
