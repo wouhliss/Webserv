@@ -124,14 +124,22 @@ bool Request::parseFirstLine(std::string line)
 		return false;
 	_method = line.substr(0, pos);
 
+	//check there is exactly one space after the method
+	if (line[pos + 1] != ' ')
+		return false;
+
 	//get the uri
 	pos2 = line.find(' ', pos + 1);
 	if (pos2 == std::string::npos)
 		return false;
 	_uri = line.substr(pos + 1, pos2 - pos - 1);
 
+	//check there is exactly one space after the uri
+	if (line[pos2 + 1] != ' ')
+		return false;
+
 	//check if http version is valid and exists
-	if (line.substr(pos2 + 1) != "HTTP/1.1")
+	if (line.substr(pos2 + 1) != "HTTP/1.1" && line.substr(pos2 + 1) != "HTTP/1.0")
 		return false;
 	_http_version = line.substr(pos2 + 1);
 
@@ -159,6 +167,8 @@ void Request::appendData(std::string data)
 	//we read data line by line, demarcated by \r\n
 	while ((pos = data.find(NEWLINE)) != std::string::npos)
 	{
+		//find a way to handle if NEWLINE is cutoff in the middle
+
 		//if the request buffer is empty, we parse the first line of the request
 		if (_buffer.empty())
 		{
@@ -168,9 +178,13 @@ void Request::appendData(std::string data)
 				return;
 			}
 		}
-
 		//otherwise, parse headers
+		
+		//otherwise we have reached the end of the headers we can check for a body if POST
 
+
+		//we add the line to the buffer
+		_buffer += data.substr(0, pos + 2);
 		//we trim the beginning of the line and continue the loop
 		data = data.substr(pos + 2);
 	}
