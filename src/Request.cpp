@@ -4,6 +4,7 @@ Request::Request()
 {
 	_is_complete = false;
 	_is_valid = 0;
+	_parsing_state = 0;
 }
 
 Request::Request(const Request &request)
@@ -17,6 +18,7 @@ Request::Request(const Request &request)
 	_body = request._body;
 	_is_complete = request._is_complete;
 	_is_valid = request._is_valid;
+	_parsing_state = request._parsing_state;
 }
 
 Request::~Request()
@@ -34,6 +36,7 @@ Request &Request::operator=(const Request &copy)
 	_body = copy._body;
 	_is_complete = copy._is_complete;
 	_is_valid = copy._is_valid;
+	_parsing_state = copy._parsing_state;
 	return *this;
 }
 
@@ -72,6 +75,11 @@ const std::map<std::string, std::string> &Request::getHeaders(void) const
 const std::string &Request::getBody(void) const
 {
 	return _body;
+}
+
+const int &Request::getRequestValidity(void) const
+{
+	return _is_valid;
 }
 
 //setters
@@ -146,14 +154,60 @@ bool Request::parseFirstLine(std::string line)
 	return true;
 }
 
+//parse the header line of the request
+/*
+Each field line consists of a case-insensitive field name followed by a colon (":"),
+optional leading whitespace, the field line value, and optional trailing whitespace.
+
+   field-line   = field-name ":" OWS field-value OWS
+*/
+bool Request::parseHeaders(std::string data)
+{
+	size_t pos = 0;
+	std::string key, value;
+
+	//find the colon
+	pos = data.find(':');
+	if (pos == std::string::npos)
+		return false;
+	//get the key
+	key = data.substr(0, pos);
+	//get the value and trim the leading / trailing spaces
+	value = data.substr(pos + 1);
+	value = trim_spaces(value);
+	if (value.empty())
+		return false;
+	//we can eventually manually check for allowed headers here
+	//add the key value pair to the headers
+	_headers[key] = value;
+	return true;
+}
+
+//true if body is complete, false otherwise
+bool Request::parseBody(std::string data)
+{
+	int content_length = std::stoi(_headers["Content-Length"]);
+
+	_body += data;
+
+	if (_body.size() >= content_length)
+	{
+		//trim the body so that it is exactly the size of content length
+		_body = _body.substr(0, content_length);
+		return true;
+	}
+	return false;
+}
+
+
 //Adds new read data to the existing request
-void Request::appendData(std::string data)
+void Request::readData(std::string data)
 {
 	//if buffer is empty and data is newline, do nothing
-	if (_buffer.empty() && data == NEWLINE)
+	if (_buffer.empty() && data == CRLF)
 		return;
-	//if buffer is empty and data is empty and request does not contain CRLF, request is invalid
-	if (_last_line.empty() && data.empty() && _request.find(CRLF) == std::string::npos)
+	//if buffer is empty and data is empty and request does not contain double CRLF, request is invalid
+	if (_last_line.empty() && data.empty() && _request.find(DOUBLECRLF) == std::string::npos)
 	{
 		setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
 		return;
@@ -165,22 +219,59 @@ void Request::appendData(std::string data)
 
 	size_t pos = 0;
 	//we read data line by line, demarcated by \r\n
-	while ((pos = data.find(NEWLINE)) != std::string::npos)
+	while ((pos = data.find(CRLF)) != std::string::npos)
 	{
-		//find a way to handle if NEWLINE is cutoff in the middle
+		//find a way to handle errors if message is chunked the wrong way
 
 		//if the request buffer is empty, we parse the first line of the request
-		if (_buffer.empty())
+		if (_buffer.empty() && _parsing_state == REQUEST_FIRST_LINE)
 		{
 			if (pos != 0 && parseFirstLine(data.substr(0, pos)) == false)
 			{
 				setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
 				return;
 			}
+			_parsing_state = REQUEST_HEADERS;
 		}
-		//otherwise, parse headers
-		
-		//otherwise we have reached the end of the headers we can check for a body if POST
+		//we search for a double CRLF, either cropped or not, to check end of headers
+		else if (_parsing_state == REQUEST_HEADERS &&
+				(((pos == 0) && (_buffer.size() >= 2 && _buffer[_buffer.size() - 1] == '\n' && _buffer[_buffer.size() - 2] == '\r'))
+				|| ((pos == 1) && (_buffer.size() >= 1 && _buffer[_buffer.size() - 1] == '\r'))))
+		{
+			_parsing_state = REQUEST_BODY;
+			//if method is not post, we consider the request complete
+			if (_method != "POST")
+			{
+				_buffer += data.substr(0, pos + 2);
+				setRequestValidity(0, true);
+				return;
+			}
+		}
+		//otherwise we have a complete header line
+		else if (_parsing_state == REQUEST_HEADERS)
+		{
+			if (parseHeaders(data.substr(0, pos) == false))
+			{
+				setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
+				return;
+			}
+		}
+		//handle case were a binary CRLF is found in the body, we parse it
+		else if (_parsing_state == REQUEST_BODY && _method == "POST")
+		{
+			if (parseBody(data.substr(0, pos + 2)) == true)
+			{
+				_buffer += data.substr(0, pos + 2);
+				setRequestValidity(0, true);
+				return;
+			}
+		}
+		//other cases are invalid (check if we need to handle more cases here)
+		else
+		{
+			setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
+			return;
+		}
 
 
 		//we add the line to the buffer
@@ -189,7 +280,20 @@ void Request::appendData(std::string data)
 		data = data.substr(pos + 2);
 	}
 	
-	//otherwise we store the remainder of the data in the last line
+	//here we have remainder of data without newline, so if we are in parsing state 2 and method is POST, we add the data to the body
+	//and we check that body is complete by comparing with content length
+	if (_parsing_state == REQUEST_BODY && _method == "POST")
+	{
+		if (parseBody(data) == true)
+		{
+			_buffer += data;
+			setRequestValidity(0, true);
+			return;
+		}
+	}
+
+	//request is not complete
+	//we store the remainder of the data in the last line
 	_last_line = data;
 	return ;
 }

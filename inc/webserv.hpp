@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/25 18:03:32 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/26 13:36:10 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,8 @@
 
 #define BUFFER_SIZE 4096
 
-#define NEWLINE "\r\n"
-#define CRLF "\r\n\r\n"
+#define CRLF "\r\n"
+#define DOUBLECRLF "\r\n\r\n"
 
 #define HTTP_ERROR_BAD_REQUEST 400
 

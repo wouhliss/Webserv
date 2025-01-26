@@ -50,8 +50,25 @@ Client &Client::operator=(const Client &copy)
 
 void Client::readRequest(std::string &buffer)
 {
-	if (client._request != NULL)
+	client->_request->readData(buffer);
+	//if request is ready or invalid, we process it
+	if (client->_request->isComplete())
 	{
-		//add buffer to existing request
+		if (client->_request->isValid())
+			client->processRequest();
+		else
+			client->processErrorRequest(client->_request->getRequestValidity());
 	}
+}
+
+//handle the whole request, once it is complete
+void Client::processRequest()
+{
+
+}
+
+//error on request, we send error and reset current request
+void Client::processErrorRequest(int error_code)
+{
+	
 }

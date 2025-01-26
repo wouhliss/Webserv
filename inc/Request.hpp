@@ -5,6 +5,10 @@
 
 #include <webserv.hpp>
 
+#define REQUEST_FIRST_LINE 0
+#define REQUEST_HEADERS 1
+#define REQUEST_BODY 2
+
 class Request
 {
 	public:
@@ -26,10 +30,13 @@ class Request
 		const std::string &getHttpVersion(void) const;
 		const std::map<std::string, std::string> &getHeaders(void) const;
 		const std::string &getBody(void) const;
+		const int &getRequestValidity(void) const;
 
-		void appendData(std::string data);
+		void readData(std::string data);
 		void setRequestValidity(int value, bool is_complete);
-		void parseFirstLine(std::string line);
+		bool parseFirstLine(std::string line);
+		bool parseHeaders(std::string line);
+		bool parseBody(std::string line);
 
 	private:
 		std::string _buffer;
@@ -41,6 +48,7 @@ class Request
 		std::string _body;
 		bool _is_complete;
 		int _is_valid;
+		int _parsing_state; //0 = first line, 1 = headers, 2 = body
 };
 
 #endif

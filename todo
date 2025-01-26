@@ -1,2 +1,10 @@
 utils.cpp : 
-  - virer fonctions de parsing de utils ?
+  - virer fonctions de parsing de utils c moche ptn
+
+
+todo: 
+  - finish read 
+  - handle (get, delete)
+  - write
+  - post
+  - cgi

@@ -20,7 +20,9 @@ Class Client
 		void setFd(const int fd);
 		void &getFd(void);
 
-		void Server::readRequest(std::string &buffer);
+		void readRequest(std::string &buffer);
+		void processRequest(void);
+		void processErrorRequest(void);
 
 	private:
 		int	_fd;
