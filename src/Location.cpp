@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:13:39 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:24:46 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/26 17:16:11 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,11 @@ void Location::setDirectoryListing(const bool value)
 	_directory_listing = value;
 }
 
+void Location::setIndex(const std::string &value)
+{
+	_index = value;
+}
+
 uint8_t Location::getAllowedMethods(void) const
 {
 	return (_allowed_methods);
@@ -69,4 +74,9 @@ std::string &Location::getRedirect(void)
 bool Location::getDirectoryListing(void) const
 {
 	return (_directory_listing);
+}
+
+std::string &Location::getIndex(void)
+{
+	return (_index);
 }

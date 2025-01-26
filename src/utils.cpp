@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/24 11:16:36 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/26 17:39:32 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ void parseLocationBlock(const std::string &key, const std::string &value, Server
 		loc.setRedirect(value);
 	else if (key == "allow_directory_listing")
 		loc.setDirectoryListing(value == "on");
+	else if (key == "index")
+		loc.setIndex(value);
 	else
 		throw std::runtime_error("Error: invalid key in location block");
 }
@@ -78,4 +80,21 @@ void parseLine(const std::string &line, Server &current_server, t_parser_block &
 		parseLocationBlock(key, value, current_server);
 	else
 		parseServerBlock(key, value, current_server);
+}
+
+bool checkPathExists(const std::string &path)
+{
+	std::ifstream file(path.c_str());
+	return file.good();
+}
+
+bool isDirectory(const std::string &path)
+{
+	struct stat s;
+	if (stat(path.c_str(), &s) == 0)
+	{
+		if (s.st_mode & S_IFDIR)
+			return true;
+	}
+	return false;
 }

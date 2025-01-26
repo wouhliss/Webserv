@@ -21,8 +21,7 @@ Class Client
 		void &getFd(void);
 
 		void readRequest(std::string &buffer);
-		void processRequest(void);
-		void processErrorRequest(void);
+		void processRequest();
 
 	private:
 		int	_fd;
@@ -30,6 +29,7 @@ Class Client
 		//Check if we need pointers here or not
 		Request*	_request;
 		Response*	_response;
+		Server*		_server;
 }
 
 #endif

@@ -19,6 +19,8 @@ Request::Request(const Request &request)
 	_is_complete = request._is_complete;
 	_is_valid = request._is_valid;
 	_parsing_state = request._parsing_state;
+	_is_directory = request._is_directory;
+	_full_path = request._full_path;
 }
 
 Request::~Request()
@@ -37,6 +39,8 @@ Request &Request::operator=(const Request &copy)
 	_is_complete = copy._is_complete;
 	_is_valid = copy._is_valid;
 	_parsing_state = copy._parsing_state;
+	_is_directory = copy._is_directory;
+	_full_path = copy._full_path;
 	return *this;
 }
 

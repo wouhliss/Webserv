@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:50:59 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:13:34 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/26 17:16:00 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,19 @@ public:
 	void setPath(const std::string &value);
 	void setRedirect(const std::string &value);
 	void setDirectoryListing(const bool value);
+	void setIndex(const std::string &value);
 
 	uint8_t getAllowedMethods(void) const;
 	std::string &getPath(void);
 	std::string &getRedirect(void);
 	bool getDirectoryListing(void) const;
+	std::string &getIndex(void);
 
 private:
 	std::string _path;
 	uint8_t _allowed_methods;
 	bool _directory_listing;
 	std::string _redirect;
+	std::string _index;
 };
 #endif

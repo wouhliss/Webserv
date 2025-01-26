@@ -27,3 +27,8 @@ Response &Response::operator=(const Response &copy)
 	_is_complete = copy._is_complete;
 	return *this;
 }
+
+void Response::setRedirection(const std::string &redirection)
+{
+	_redirection = redirection;
+}
