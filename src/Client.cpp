@@ -58,6 +58,9 @@ void Client::readRequest(std::string &buffer)
 //handle the whole request, once it is complete
 void Client::processRequest()
 {
+	//set the server config in the response, so that we can access it later
+	_response->setServer(_server);
+
 	//check if the request is valid
 	if (_request->getRequestValidity() != 0)
 	{
@@ -65,20 +68,24 @@ void Client::processRequest()
 		return;
 	}
 
-	//get full path and location path
-	std::string full_path = _server.getRoot() + _request->getUri();
-
-	//see if we need to decode URI before or after
-
-	std::string location_path = _request->getUri();
-	//if uri is a filename, we need to remove the filename to get the directory
-	size_t pos = location_path.find_last_of('/');
-	if (pos != std::string::npos)
-		location_path = location_path.substr(0, pos + 1);
+	//get full path
+	std::string full_path = _server.getRoot() + extractPathFromURI(_request->getUri());
 
 	//check for location properties
+	std::string location_path;
+	size_t pos;
 	for (std::vector<Location>::iterator it = _server.getLocations().begin(); it != _server.getLocations().end(); ++it)
 	{
+		location_path = extractPathFromURI(_request->getUri());
+		//we check if location value ends with a /, if yes we only keep the last / of location_path
+		if ((*it).getPath().back() == '/')
+		{
+			pos = location_path.find_last_of('/');
+			if (pos != std::string::npos)
+				location_path = location_path.substr(0, pos + 1);
+		}
+
+
 		//a location block exists, we handle it
 		if (location_path == (*it).getPath())
 		{
@@ -87,7 +94,6 @@ void Client::processRequest()
 			{
 					_response->setStatusCode(301);
 					_response->setRedirection((*it).getRedirection());
-					_response->setHeader("Location", (*it).getRedirection());
 					return;
 			}
 
@@ -122,6 +128,8 @@ void Client::processRequest()
 		}
 	}
 
+	respone->setFullPath(full_path);
+
 	//check if the file exists
 	if (fileExists(full_path) == false)
 	{
@@ -129,10 +137,18 @@ void Client::processRequest()
 		return;
 	}
 
-	//decode URI if needed (see if we dont do it first)
+	//extract attributes from URI
+	_response->setURIAttributes(extractAttributesFromURI(_request->getUri()));
 
-	//check if cgi 
+	//specific method handlers
+	if (_request->getMethod() == "GET")
+		_response.handleGet();
+	else if (_request->getMethod() == "POST")
+		_response.handlePost();
+	else if (_request->getMethod() == "DELETE")
+		_response.handleDelete();
+	else
+		_response->setStatusCode(405);
 
-	//handle methods / cgi
-
+	return;
 }

@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/26 17:39:32 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/27 11:44:18 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,4 +97,42 @@ bool isDirectory(const std::string &path)
 			return true;
 	}
 	return false;
+}
+
+std::string decodeURI(const std::string &uri)
+{
+	std::string decoded;
+	size_t i = 0;
+	while (i < uri.size())
+	{
+		if (uri[i] == '%')
+		{
+			decoded += static_cast<char>(std::stoi(uri.substr(i + 1, 2), 0, 16));
+			i += 3;
+		}
+		else
+		{
+			decoded += uri[i];
+			i++;
+		}
+	}
+	return decoded;
+}
+
+std::string extractPathFromURI(const std::string uri)
+{
+	std::string path = uri;
+	size_t pos = path.find("?");
+	if (pos != std::string::npos)
+		path = path.substr(0, pos);
+	return decodeURI(path);
+}
+
+std::string extractAttributesFromURI(const std::string uri)
+{
+	std::string attributes = uri;
+	size_t pos = attributes.find("?");
+	if (pos != std::string::npos)
+		attributes = attributes.substr(pos + 1);
+	return decodeURI(attributes);
 }
