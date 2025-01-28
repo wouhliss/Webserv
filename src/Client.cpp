@@ -107,13 +107,10 @@ void Client::processRequest()
 			if (isDirectory(full_path))
 			{
 				//if yes, check if directory listing is allowed
-					//if yes, mark is_directory bool
 					//if no, check if index file exists
 						//if yes, change full path to index file
 						//if no, 403 forbidden
-				if ((*it).getDirectoryListing() == true)
-					_request->setIsDirectory(true);
-				else
+				if ((*it).getDirectoryListing() == false)
 				{
 					if ((*it).getIndex().empty() == false)
 						full_path += (*it).getIndex();
@@ -128,7 +125,8 @@ void Client::processRequest()
 		}
 	}
 
-	respone->setFullPath(full_path);
+	_respone->setFullPath(full_path);
+	_response->setIsDirectory(isDirectory(full_path));
 
 	//check if the file exists
 	if (fileExists(full_path) == false)
@@ -136,6 +134,8 @@ void Client::processRequest()
 		_response->setStatusCode(404);
 		return;
 	}
+
+	//see how we handle directories and default files
 
 	//extract attributes from URI
 	_response->setURIAttributes(extractAttributesFromURI(_request->getUri()));
@@ -151,4 +151,19 @@ void Client::processRequest()
 		_response->setStatusCode(405);
 
 	return;
+}
+
+void Client::sendResponse()
+{
+	//send the response
+	//check if the response is being written, then prepare response and set it up for writing
+	if (!_response->isBeingWritten())
+	{
+		client->_response->prepareResponse();
+		client->_response->setIsBeingWritten(true);
+	}
+
+	//otherwise we keep writing until response is complete
+
+	//when complete, we clear both request and response and reset them
 }

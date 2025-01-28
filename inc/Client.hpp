@@ -22,6 +22,7 @@ Class Client
 
 		void readRequest(std::string &buffer);
 		void processRequest();
+		void sendResponse();
 
 	private:
 		int	_fd;

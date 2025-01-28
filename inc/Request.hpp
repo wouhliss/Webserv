@@ -50,7 +50,6 @@ class Request
 		int _is_valid;
 		int _parsing_state; //0 = first line, 1 = headers, 2 = body
 		std::string _full_path;
-		bool _is_directory;
 };
 
 #endif
