@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:06:23 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/29 00:44:26 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,12 @@ bool check_extension(const std::string &str)
 		return (false);
 	return (str.substr(str.find_last_of('.')) == ".conf");
 }
+
+bool isValidMethod(const std::string &value)
+{
+	return (value == "GET" || value == "POST" || value == "DELETE");
+}
+
 void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server)
 {
 	Location loc = current_server.getLocations().back();
@@ -58,9 +64,9 @@ void parseLine(const std::string &line, Server &current_server, t_parser_block &
 	std::string value;
 
 	key = line.substr(0, line.find_first_of(":"));
-	key = trim_spaces(key);
+	key = trim(key, " \t\n\r\f\v");
 	value = line.substr(line.find_first_of(":") + 1);
-	value = trim_spaces(value);
+	value = trim(value, " \t\n\r\f\v");
 
 	if (value.empty())
 		throw std::runtime_error("Error: unknown key");

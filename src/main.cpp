@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 18:00:30 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/29 00:57:59 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int max_fd = 0;
 std::map<int, Server *> sockfd_to_server;
-std::map<int, int> fd_to_sockfd;
+std::map<int, Client *> fd_to_client;
 fd_set current_fds, write_fds, read_fds;
 
 volatile sig_atomic_t loop = 1;
@@ -45,21 +45,88 @@ void loop_handle()
 				if (new_fd > max_fd)
 					max_fd = new_fd;
 
-				fd_to_sockfd[new_fd] = i;
+				sockfd_to_server.find(i)->second->addClient(new_fd);
 			}
 			else
 			{
-				char buffer[4096];
+				uint8_t buffer[BUFFER_SIZE + 1];
 				int bytes_received;
+				Client *client = fd_to_client[i];
 
+				if (!client)
+					continue;
+				if (client->getResponseBuffer().size())
+					continue;
 				bytes_received = recv(i, buffer, sizeof(buffer), 0);
 				if (bytes_received <= 0)
 				{
 					FD_CLR(i, &current_fds);
-					if (close(i) < 0)
-						throw std::runtime_error("Error: Could not close socket");
-					fd_to_sockfd.erase(i);
-					return;
+					sockfd_to_server[client->getSockFd()]->removeClient(i);
+					continue;
+				}
+				client->appendBuffer(buffer, bytes_received);
+				if (client->getState() == BODY)
+				{
+					client->addBodySize(bytes_received);
+					if (client->getContentLength() <= client->getBodySize())
+					{
+						std::cerr << "Content-Length: " << client->getContentLength() << '\n'
+								  << "Header end: " << client->getHeaderEnd() << '\n'
+								  << "Body size: " << client->getBodySize() << std::endl;
+						FD_CLR(i, &current_fds);
+						sockfd_to_server[client->getSockFd()]->removeClient(i);
+						continue;
+					}
+					continue;
+				}
+				std::string buffer_str(reinterpret_cast<char *>(client->getBuffer().data()), client->getBuffer().size());
+				std::stringstream buffer_stream(buffer_str);
+				std::string line;
+				std::cerr << buffer_str << std::endl;
+				while (std::getline(buffer_stream, line))
+				{
+					size_t line_size = line.size();
+					line = trim(line, " \t\n\r\f\v");
+					if (line.empty())
+					{
+						client->setState(BODY);
+						client->getBuffer().erase(client->getBuffer().begin(), client->getBuffer().begin() + line_size + 1);
+						client->addBodySize(client->getBuffer().size());
+						break;
+					}
+					if (client->getState() == REQ_LINE)
+					{
+						std::stringstream req_line_stream(line);
+						std::string tmp;
+						if (req_line_stream >> tmp && isValidMethod(tmp))
+						{
+							client->setMethod(tmp);
+						}
+						if (req_line_stream >> tmp)
+						{
+							client->setPath(tmp);
+						}
+						if (req_line_stream >> tmp)
+						{
+							client->setHttpVer(tmp);
+							client->setState(HEADERS);
+						}
+					}
+					else if (client->getState() == HEADERS)
+					{
+						std::stringstream header_line_stream(line);
+						std::string key;
+						header_line_stream >> key;
+						line.erase(line.begin(), line.begin() + key.size());
+						key = key.substr(0, key.find_first_of(":"));
+						key = trim(key, " \t\n\r\f\v");
+						for (std::string::iterator it = key.begin(); it != key.end(); ++it)
+							*it = tolower(*it);
+						line = trim(line, " \t\n\r\f\v");
+						client->addHeader(key, line);
+					}
+					client->getBuffer().erase(client->getBuffer().begin(), client->getBuffer().begin() + line_size + 1);
+					client->addHeaderEnd(line_size);
 				}
 			}
 		}

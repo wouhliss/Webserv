@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:57:13 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/29 00:44:05 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@
 
 #include <Server.hpp>
 #include <Location.hpp>
+#include <Client.hpp>
 
 #define BOLD "\033[1m"
 #define ITALIC "\033[3m"
@@ -49,25 +50,27 @@
 #define BLUE "\033[34m"
 #define RESET "\033[0m"
 
+#define BUFFER_SIZE 4096
+
 #define SSTR(x) static_cast<std::ostringstream &>(           \
 					(std::ostringstream() << std::dec << x)) \
 					.str()
 
-inline std::string &rtrim(std::string &s)
+inline std::string &rtrim(std::string &s, const char *chars)
 {
-	s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
+	s.erase(s.find_last_not_of(chars) + 1);
 	return s;
 }
 
-inline std::string &ltrim(std::string &s)
+inline std::string &ltrim(std::string &s, const char *chars)
 {
-	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+	s.erase(0, s.find_first_not_of(chars));
 	return s;
 }
 
-inline std::string &trim_spaces(std::string &s)
+inline std::string &trim(std::string &s, const char *chars)
 {
-	return ltrim(rtrim(s));
+	return ltrim(rtrim(s, chars), chars);
 }
 
 class Server;
@@ -83,10 +86,11 @@ bool check_extension(const std::string &str);
 void parseLine(const std::string &line, Server &current_server, t_parser_block &parser_position);
 void parseServerBlock(const std::string &key, const std::string &value, Server &current_server);
 void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server);
+bool isValidMethod(const std::string &value);
 
 extern int max_fd;
 extern std::map<int, Server *> sockfd_to_server;
-extern std::map<int, int> fd_to_sockfd;
 extern fd_set current_fds, write_fds, read_fds;
+extern std::map<int, Client *> fd_to_client;
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 17:59:36 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/28 23:39:37 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,6 @@ Server::~Server()
 {
 	if (_sockfd > 0)
 		close(_sockfd);
-	for (std::map<int, int>::iterator it = fd_to_sockfd.begin(); it != fd_to_sockfd.end(); ++it)
-	{
-		if (it->second == _sockfd)
-			close(it->first);
-	}
 }
 
 Server &Server::operator=(const Server &copy)
@@ -99,7 +94,7 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 
 	while (std::getline(infile, line))
 	{
-		line = trim_spaces(line);
+		line = trim(line, " \t\n\r\f\v");
 
 		if (line.empty() || line[0] == '#')
 			continue;
@@ -148,6 +143,19 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 void Server::addLocation(void)
 {
 	_locations.push_back(Location());
+}
+
+void Server::addClient(int fd)
+{
+	_clients[fd] = Client(_sockfd);
+	_clients[fd].setFd(fd);
+	fd_to_client[fd] = &_clients[fd];
+}
+
+void Server::removeClient(int fd)
+{
+	fd_to_client.erase(fd);
+	_clients.erase(fd);
 }
 
 void Server::updateErrorPage(const int error_code, const std::string &value)

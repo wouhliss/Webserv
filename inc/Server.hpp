@@ -6,7 +6,7 @@
 /*   By: wouhliss <wouhliss@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/23 16:35:46 by wouhliss         ###   ########.fr       */
+/*   Updated: 2025/01/28 22:49:50 by wouhliss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <webserv.hpp>
 
 class Location;
+class Client;
 
 class Server
 {
@@ -28,6 +29,9 @@ public:
 	static std::vector<Server> parseConfigFile(const std::string &filename);
 
 	void addLocation(void);
+	void addClient(int fd);
+
+	void removeClient(int fd);
 
 	void updateErrorPage(const int error_code, const std::string &value);
 
@@ -58,6 +62,7 @@ private:
 	std::string _default_file;
 	std::vector<Location> _locations;
 	std::map<int, std::string> _error_pages;
+	std::map<int, Client> _clients;
 	int _sockfd;
 	struct sockaddr_in _addr;
 	id_t _addr_len;
