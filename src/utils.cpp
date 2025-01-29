@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/27 11:44:18 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/29 12:47:02 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,20 @@ bool check_extension(const std::string &str)
 		return (false);
 	return (str.substr(str.find_last_of('.')) == ".conf");
 }
+
+std::string getCurrentDate()
+{
+	time_t rawtime;
+	struct tm *timeinfo;
+	char buffer[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+	return std::string(buffer);
+}
+
 void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server)
 {
 	Location loc = current_server.getLocations().back();

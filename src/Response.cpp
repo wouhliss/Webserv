@@ -53,6 +53,21 @@ void Response::setIsDirectory(bool is_directory)
 	_is_directory = is_directory;
 }
 
+void Response::setHTTPVersion(const std::string &http_version)
+{
+	_http_version = http_version;
+}
+
+void Response::setStatusCode(int status_code)
+{
+	_status_code = status_code;
+}
+
+void Response::setStatusMessage(const std::string &status_message)
+{
+	_status_message = status_message;
+}
+
 //specific handlers for methods
 //assume that the request is valid and has been correctly parsed
 void Response::handleGET()
@@ -92,10 +107,16 @@ void Response::handlePOST()
 void Response::prepareResponse()
 {
 	defineContentType();
-	
+	defineStatusMessage();
+	//build status line : status-line = HTTP-version SP status-code SP [ reason-phrase ]
+	_buffer = "HTTP/1.1" + " " + _status_code + " " + _status_message + CRLF;
 
-	//need to rebuild whole buffer for response
-	//depending on the status code, we set the status message
+	//get right body and additionnal headers if needed (cgi / post)
+
+	//set all necessary headers
+	defineResponseHeaders();
+
+	_buffer += _body;
 }
 
 void Response::defineContentType()
@@ -209,4 +230,64 @@ void Response::defineContentType()
 		else if (extension == "otc")
 			_content_type = "application/vnd.oasis.opendocument.chart-template";
 	}
+}
+
+void Response::defineStatusMessage(const int status_number)
+{
+	if (status_number == 200)
+		_status_message = "OK";
+	else if (status_number == 201)
+		_status_message = "Created";
+	else if (status_number == 202)
+		_status_message = "Accepted";
+	else if (status_number == 204)
+		_status_message = "No Content";
+	else if (status_number == 301)
+		_status_message = "Moved Permanently";
+	else if (status_number == 302)
+		_status_message = "Found";
+	else if (status_number == 303)
+		_status_message = "See Other";
+	else if (status_number == 304)
+		_status_message = "Not Modified";
+	else if (status_number == 400)
+		_status_message = "Bad Request";
+	else if (status_number == 401)
+		_status_message = "Unauthorized";
+	else if (status_number == 403)
+		_status_message = "Forbidden";
+	else if (status_number == 404)
+		_status_message = "Not Found";
+	else if (status_number == 405)
+		_status_message = "Method Not Allowed";
+	else if (status_number == 500)
+		_status_message = "Internal Server Error";
+	else if (status_number == 501)
+		_status_message = "Not Implemented";
+	else if (status_number == 502)
+		_status_message = "Bad Gateway";
+	else if (status_number == 503)
+		_status_message = "Service Unavailable";
+	else if (status_number == 504)
+		_status_message = "Gateway Timeout";
+	else if (status_number == 505)
+		_status_message = "HTTP Version Not Supported";
+	else
+		_status_message = "Unknown Status";
+}
+
+void Response::defineResponseHeaders()
+{
+	_buffer += "Server: " + _server->getName() + CRLF;
+	_buffer += "Date: " + getCurrentDate() + CRLF;
+	if (_status_code == "301" || _status_code == "302")
+	{
+		_buffer += "Location: " + _redirection + CRLF;
+		_buffer += "Content-Length: 0" + CRLF;
+		_buffer += CRLF;
+	}
+	_buffer += "Content-Type: " + _content_type + CRLF;
+	_buffer += "Content-Length: " + std::to_string(_body.size()) + CRLF;
+	//_buffer += "Connection: close" + CRLF;
+	_buffer += CRLF;
 }

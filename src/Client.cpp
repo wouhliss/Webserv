@@ -55,7 +55,7 @@ void Client::readRequest(std::string &buffer)
 		client->processRequest(server);
 }
 
-//handle the whole request, once it is complete
+//handle the whole request, once it is complete, by filling response object and treating the request on the server side
 void Client::processRequest()
 {
 	//set the server config in the response, so that we can access it later
