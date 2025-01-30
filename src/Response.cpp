@@ -84,14 +84,11 @@ void Response::handleGET()
 {
 	if (_is_directory == true)
 	{
-		std::string directory_listing = generateDirectoryListing(_full_path);
-		_body = directory_listing;
+		_body = generateDirectoryListing(_full_path);
 		_status_code = "200";
 	}
 	else
-	{
-		//handle file serving
-	}
+		getFileContent();
 }
 
 void Response::handleDELETE()
@@ -108,6 +105,33 @@ void Response::handleDELETE()
 void Response::handlePOST()
 {
 	//handle the post request
+}
+
+//try to open file and read its content
+//if error page, generate error page instead
+void Response::getFileContent()
+{
+	std::ifstream file(_full_path.c_str(), std::ios::binary);
+	if (file.is_open() == false)
+		_status_code = "500";
+	else
+		_status_code = "200";
+
+	if (!isAnErrorResponse(_status_code))
+	{
+		//see if we read file later in another function, to support cgi 
+		if (_is_directory == false)
+		{
+			std::string line;
+			while (std::getline(file, line))
+				_body += line + CRLF;
+			file.close();
+		}
+	}
+	else
+	{
+		_body = "<html><head><title>Error</title></head><body><h1>Error " + _status_code + "</h1></body></html>";
+	}
 }
 
 void Response::prepareResponse()
@@ -299,3 +323,4 @@ void Response::defineResponseHeaders()
 	}
 	_headers += CRLF;
 }
+

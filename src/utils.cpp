@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/30 15:37:12 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/30 16:06:09 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,4 +187,15 @@ std::string generateDirectorylisting(const std::string full_path)
 	directory_listing << "</table>";
 	directory_listing << "</body></html>";
 	return directory_listing.str();	
+}
+
+//get pages that will return an error or not
+std::string isAnErrorResponse(const int error_number)
+{
+	if (error_number == 0 
+		|| (error_number >= 200 && error_number <= 204)
+		|| (error_number >= 301 && error_number <= 302)
+		|| error_number == 401)
+		return false;
+	return true;
 }

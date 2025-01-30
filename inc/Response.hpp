@@ -23,8 +23,6 @@ class Response
 		void setStatusMessage(const std::string &status_message);
 		void setHeaders(const std::string &headers);
 
-		void getHead
-
 		void handleGET();
 		void handlePOST();
 		void handleDELETE();
@@ -33,6 +31,7 @@ class Response
 		void defineContentType();
 		void defineStatusMessage(const int status_number);
 		void defineResponseHeaders();
+		void getFileContent();
 	
 	private:
 		Server 		*_server;
