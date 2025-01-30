@@ -68,6 +68,16 @@ void Response::setStatusMessage(const std::string &status_message)
 	_status_message = status_message;
 }
 
+void Response::setHeaders(const std::string &headers)
+{
+	_headers = headers;
+}
+
+void Response::getHeaders(void)
+{
+	return _headers;
+}
+
 //specific handlers for methods
 //assume that the request is valid and has been correctly parsed
 void Response::handleGET()
@@ -88,15 +98,9 @@ void Response::handleDELETE()
 	//remove the file
 	//500 if error, 204 if success
 	if (remove(_full_path.c_str()) != 0)
-	{
 		_status_code = "500";
-		_status_message = "Internal Server Error";
-	}
 	else
-	{
 		_status_code = "204";
-		_status_message = "No Content";
-	}
 }
 
 void Response::handlePOST()
@@ -111,12 +115,12 @@ void Response::prepareResponse()
 	//build status line : status-line = HTTP-version SP status-code SP [ reason-phrase ]
 	_buffer = "HTTP/1.1" + " " + _status_code + " " + _status_message + CRLF;
 
-	//get right body and additionnal headers if needed (cgi / post)
-
 	//set all necessary headers
 	defineResponseHeaders();
+	_buffer += _headers;
 
-	_buffer += _body;
+	if (_status_code != "301" && _status_code != "302" && _body.empty() == false)
+		_buffer += _body;
 }
 
 void Response::defineContentType()
@@ -278,16 +282,18 @@ void Response::defineStatusMessage(const int status_number)
 
 void Response::defineResponseHeaders()
 {
-	_buffer += "Server: " + _server->getName() + CRLF;
-	_buffer += "Date: " + getCurrentDate() + CRLF;
+	_headers += "Server: " + _server->getName() + CRLF;
+	_headers += "Date: " + getCurrentDate() + CRLF;
 	if (_status_code == "301" || _status_code == "302")
 	{
-		_buffer += "Location: " + _redirection + CRLF;
-		_buffer += "Content-Length: 0" + CRLF;
-		_buffer += CRLF;
+		_headers += "Location: " + _redirection + CRLF;
+		_headers += "Content-Length: 0" + CRLF;
 	}
-	_buffer += "Content-Type: " + _content_type + CRLF;
-	_buffer += "Content-Length: " + std::to_string(_body.size()) + CRLF;
-	//_buffer += "Connection: close" + CRLF;
-	_buffer += CRLF;
+	else
+	{
+		_headers += "Content-Type: " + _content_type + CRLF;
+		_headers += "Content-Length: " + std::to_string(_body.size()) + CRLF;
+		//_headers += "Connection: close" + CRLF;
+	}
+	_headers += CRLF;
 }

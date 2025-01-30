@@ -21,6 +21,9 @@ class Response
 		void setHTTPVersion(const std::string &http_version);
 		void setStatusCode(int status_code);
 		void setStatusMessage(const std::string &status_message);
+		void setHeaders(const std::string &headers);
+
+		void getHead
 
 		void handleGET();
 		void handlePOST();
@@ -36,7 +39,7 @@ class Response
 		std::string _buffer;
 		int			 _status_code;
 		std::string _status_message;
-		std::map<std::string, std::string> _headers;
+		std::string _headers;
 		std::string _body;
 		std::string _full_path;
 		std::string _uri_attributes;
