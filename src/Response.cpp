@@ -84,7 +84,9 @@ void Response::handleGET()
 {
 	if (_is_directory == true)
 	{
-		//function to generate directory listing
+		std::string directory_listing = generateDirectoryListing(_full_path);
+		_body = directory_listing;
+		_status_code = "200";
 	}
 	else
 	{

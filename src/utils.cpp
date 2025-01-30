@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/29 12:47:02 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/01/30 15:37:12 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,4 +149,42 @@ std::string extractAttributesFromURI(const std::string uri)
 	if (pos != std::string::npos)
 		attributes = attributes.substr(pos + 1);
 	return decodeURI(attributes);
+}
+
+//Use full path of directory to generate directory listing in html
+std::string generateDirectorylisting(const std::string full_path)
+{
+	std::stringstream directory_listing;
+
+	directory_listing << "<html><head>";
+	directory_listing << "<title>Directory listing</title>";
+	directory_listing << "<style>";
+	directory_listing << "body {font-family: Arial, sans-serif;}";
+	directory_listing << "h1 {color: #333;}";
+	directory_listing << "table {width: 100%; border-collapse: collapse;}";
+	directory_listing << "</style>";
+	directory_listing << "</head><body>";
+	directory_listing << "<h1>Directory listing : " << full_path << "</h1>";
+	directory_listing << "<table>";
+
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir(full_path.c_str())) != NULL)
+	{
+		while ((ent = readdir(dir)) != NULL)
+		{
+			directory_listing << "<tr>";
+			directory_listing << "<td><a href=\"" << ent->d_name << "\">" << ent->d_name << "</a></td>";
+			directory_listing << "</tr>";
+		}
+		closedir(dir);
+	}
+	else
+	{
+		directory_listing << "<tr><td>Could not open directory</td></tr>";
+	}
+
+	directory_listing << "</table>";
+	directory_listing << "</body></html>";
+	return directory_listing.str();	
 }
