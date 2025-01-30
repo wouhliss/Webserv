@@ -160,10 +160,13 @@ void Client::sendResponse()
 	if (!_response->isBeingWritten())
 	{
 		client->_response->prepareResponse();
-		client->_response->setIsBeingWritten(true);
+		client->_response->is_being_written = true;
 	}
 
-	//otherwise we keep writing until response is complete
-
-	//when complete, we clear both request and response and reset them
+	if (client->_response->is_being_written == true)
+	{
+		//write response
+		//if write is complete, we clear the response and request and reset them
+		//if not, we keep writing until response is complete
+	}
 }

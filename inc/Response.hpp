@@ -8,6 +8,9 @@
 class Response
 {
 	public:
+		bool is_being_written;
+		bool is_complete;
+
 		Response();
 		Response(const Response &response);
 		~Response();
@@ -46,8 +49,6 @@ class Response
 		std::string _content_type;
 		std::string _http_version;
 		bool _is_directory;
-		bool _is_being_written;
-		bool _is_complete;
 }
 
 #endif
