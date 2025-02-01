@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/24 16:00:38 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/01 15:21:05 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ public:
 	void setDefaultFile(const std::string &value);
 	void setCgiBin(const std::string &value);
 
-	void readRequest(Client &client, std::string &buffer);
+	void addNewClient(int fd);
 
 	std::vector<Location> &getLocations(void);
 	std::map<int, std::string> &getErrorPages(void);
@@ -55,7 +55,11 @@ public:
 	std::map<std::string, std::string> &getCgiExtensions(void);
 
 	void initSocket(void);
+	
+	//public attributes
+	std::vector<Client> clients;
 
+	
 private:
 	std::string _hostname;
 	int _port;

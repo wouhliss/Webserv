@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/26 13:36:10 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/01 16:22:07 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@
 #define RESET "\033[0m"
 
 #define BUFFER_SIZE 4096
+#define MAX_CONNECTIONS 1000
 
 #define CRLF "\r\n"
 #define DOUBLECRLF "\r\n\r\n"

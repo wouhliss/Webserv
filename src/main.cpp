@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/31 19:13:42 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/01 16:21:33 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,24 +25,31 @@ void siginthandle(int sig)
 	loop = 0;
 }
 
-void loop_handle()
+void loop_handle(std::vector<Server> &servers)
 {
+	//rebuild the fd set properly here
 	read_fds = write_fds = current_fds;
-	select(max_fd + 1, &read_fds, &write_fds, NULL, 0);
+	if (select(max_fd + 1, &read_fds, &write_fds, NULL, 0) < 0)
+	{
+		throw std::runtime_error("Error: Could not select");
+		return ;
+	}
 
 	
 	for (int i = 0; i <= max_fd; ++i)
 	{
 		if (FD_ISSET(i, &read_fds))
 		{
+			//check max connexions here
 			if (sockfd_to_server.find(i) != sockfd_to_server.end())
 			{
-				//create new client data here
 				int new_fd;
 				struct sockaddr_in new_addr;
 				id_t new_addrlen = sizeof(new_addr);
 
 				new_fd = accept(i, (struct sockaddr *)&new_addr, &new_addrlen);
+				
+				//handle new clients here
 
 				FD_SET(new_fd, &current_fds);
 				if (new_fd > max_fd)
@@ -52,7 +59,7 @@ void loop_handle()
 			}
 			else
 			{
-				//loop manually through all clients instead of this bloc
+				//loop manually through all clients instead of this block
 				char buffer[4096];
 				int bytes_received;
 
@@ -108,7 +115,7 @@ int main(int argc, char **argv)
 		signal(SIGINT, siginthandle);
 		while (loop)
 		{
-			loop_handle();
+			loop_handle(servers);
 		}
 	}
 	catch (std::exception &e)

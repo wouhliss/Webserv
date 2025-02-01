@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/25 17:31:33 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/01 15:21:30 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,14 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 			  << RESET;
 
 	return (servers);
+}
+
+
+void Server::addNewClient(int fd)
+{
+	Client *client = new Client(fd);
+	client->setServer(this);
+	_clients.push_back(client);
 }
 
 
