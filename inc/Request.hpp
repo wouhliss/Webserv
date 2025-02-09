@@ -31,6 +31,7 @@ class Request
 		const std::map<std::string, std::string> &getHeaders(void) const;
 		const std::string &getBody(void) const;
 		const int &getRequestValidity(void) const;
+		const bool &isComplete(void) const;
 
 		void readData(std::string data);
 		void setRequestValidity(int value, bool is_complete);

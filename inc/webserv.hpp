@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/01 16:22:07 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:15:33 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <signal.h>
-#include <linux/limits.h>
+// #include <linux/limits.h>
 #include <fcntl.h>
 
 #include <Server.hpp>
@@ -63,23 +63,6 @@
 #define SSTR(x) static_cast<std::ostringstream &>(           \
 					(std::ostringstream() << std::dec << x)) \
 					.str()
-
-inline std::string &rtrim(std::string &s)
-{
-	s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
-	return s;
-}
-
-inline std::string &ltrim(std::string &s)
-{
-	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
-	return s;
-}
-
-inline std::string &trim_spaces(std::string &s)
-{
-	return ltrim(rtrim(s));
-}
 
 class Server;
 

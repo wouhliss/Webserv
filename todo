@@ -1,10 +1,11 @@
-utils.cpp : 
-  - virer fonctions de parsing de utils c moche ptn
-
-
 todo: 
-  - finish read 
+  - compiler 
   - handle (get, delete)
   - write
+  - check for reading / writing method, weither with revc / send or write / send
   - post
-  - cgi
+  - cgi 
+    - for get 
+    - post
+    - 
+  - cookies and edgecases

@@ -86,6 +86,11 @@ const int &Request::getRequestValidity(void) const
 	return _is_valid;
 }
 
+const bool &Request::isComplete(void) const
+{
+	return _is_complete;
+}
+
 //setters
 
 

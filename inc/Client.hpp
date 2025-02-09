@@ -19,6 +19,7 @@ Class Client
 
 		void setFd(const int fd);
 		void &getFd(void);
+		Request &getRequest(void);
 
 		void readRequest(std::string &buffer);
 		void processRequest();

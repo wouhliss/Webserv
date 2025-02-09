@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 15:40:42 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:06:54 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,19 +32,12 @@ void handle_clients(std::vector<Server> &servers)
 			client = *it2;
 			if (FD_ISSET(client.getSocket(), &read_fds))
 			{
-				//read request
-				//parse request
-				//check if request is complete
-				//if complete, handle request
-				//else, continue reading
+				//if the request is ready to be read, we can read it
+				if (!client.getRequest()->isComplete())
+					client.readRequest(buffer);
 			}
 			else if (FD_ISSET(client.getSocket(), &write_fds))
-			{
-				//write response
-				//check if response is complete
-				//if complete, close connection
-				//else, continue writing
-			}
+				client.sendResponse();
 		}
 	}
 	

@@ -49,8 +49,27 @@ Client &Client::operator=(const Client &copy)
 	return *this;
 }
 
+Request& Client::getRequest()
+{
+	return _request;
+}
+
 void Client::readRequest(std::string &buffer)
 {
+	char buffer[BUFFER_SIZE + 1];
+	int bytes_received;
+	int client_fd = client.getFd();
+
+	bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
+	if (bytes_received <= 0)
+	{
+		FD_CLR(client_fd, &current_fds);
+		if (close(client_fd) < 0)
+			throw std::runtime_error("Error: Could not close socket");
+		fd_to_sockfd.erase(client_fd);
+		return;
+	}
+	buffer[bytes_received] = '\0';
 	client->_request->readData(buffer);
 	if (client->_request->isComplete())
 		client->processRequest(server);

@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/30 16:06:09 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:16:00 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,4 +198,21 @@ std::string isAnErrorResponse(const int error_number)
 		|| error_number == 401)
 		return false;
 	return true;
+}
+
+std::string &rtrim(std::string &s)
+{
+	s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
+	return s;
+}
+
+std::string &ltrim(std::string &s)
+{
+	s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+	return s;
+}
+
+std::string &trim_spaces(std::string &s)
+{
+	return ltrim(rtrim(s));
 }
