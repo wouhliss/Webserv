@@ -10,12 +10,13 @@ Client::Client()
 	_cgi_pipes[1] = -1;
 }
 
-Client::Client(int fd)
+Client::Client(int fd, struct sockaddr_in addr)
 {
 	_request = new Request();
 	_response = new Response();
 
 	_fd = fd;
+	_addr = addr;
 	_cgi_pipes[0] = -1;
 	_cgi_pipes[1] = -1;
 }

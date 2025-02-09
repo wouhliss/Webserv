@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/01 16:21:33 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 15:40:42 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,62 @@ fd_set current_fds, write_fds, read_fds;
 
 volatile sig_atomic_t loop = 1;
 
+void handle_clients(std::vector<Server> &servers)
+{
+	Client &client;
+	
+	//loop through al servers to check if they have a client
+	//for each client, read or write message depending of the state of the request
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+	{
+		for (std::vector<Client>::iterator it2 = it->clients.begin(); it2 != it->clients.end(); ++it2)
+		{
+			client = *it2;
+			if (FD_ISSET(client.getSocket(), &read_fds))
+			{
+				//read request
+				//parse request
+				//check if request is complete
+				//if complete, handle request
+				//else, continue reading
+			}
+			else if (FD_ISSET(client.getSocket(), &write_fds))
+			{
+				//write response
+				//check if response is complete
+				//if complete, close connection
+				//else, continue writing
+			}
+		}
+	}
+	
+}
+
+void check_new_clients(std::vector<Server> &servers)
+{
+	for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+	{
+		//check max number of connexions here
+		if (FD_ISSET(it->getSocket(), &read_fds))
+		{
+			int new_fd;
+			struct sockaddr_in new_addr;
+			id_t new_addrlen = sizeof(new_addr);
+
+			new_fd = accept(it->getSocket(), (struct sockaddr *)&new_addr, &new_addrlen);
+			if (new_fd < 0)
+				return ;
+			FD_SET(new_fd, &current_fds);
+			if (new_fd > max_fd)
+				max_fd = new_fd;
+
+			//push back new client
+			it->clients.push_back(Client(new_fd, new_addr));
+			fd_to_sockfd[new_fd] = it->getSocket();
+		}
+	}
+}
+
 void siginthandle(int sig)
 {
 	(void)sig;
@@ -27,7 +83,7 @@ void siginthandle(int sig)
 
 void loop_handle(std::vector<Server> &servers)
 {
-	//rebuild the fd set properly here
+	//update max_fd
 	read_fds = write_fds = current_fds;
 	if (select(max_fd + 1, &read_fds, &write_fds, NULL, 0) < 0)
 	{
@@ -35,7 +91,14 @@ void loop_handle(std::vector<Server> &servers)
 		return ;
 	}
 
+	//add newfound clients
+	check_new_clients(servers);
 	
+	//handle clients requests
+	handle_clients(servers);;
+	
+
+	/*
 	for (int i = 0; i <= max_fd; ++i)
 	{
 		if (FD_ISSET(i, &read_fds))
@@ -59,7 +122,6 @@ void loop_handle(std::vector<Server> &servers)
 			}
 			else
 			{
-				//loop manually through all clients instead of this block
 				char buffer[4096];
 				int bytes_received;
 
@@ -75,6 +137,7 @@ void loop_handle(std::vector<Server> &servers)
 			}
 		}
 	}
+	*/
 }
 
 int main(int argc, char **argv)

@@ -12,7 +12,7 @@ Class Client
 {
 	public:
 		Client();
-		Client(int fd);
+		Client(int fd, struct sockaddr_in addr);
 		Client(const Client &client);
 		~Client();
 		Client &operator=(const Client &copy);
@@ -27,6 +27,7 @@ Class Client
 	private:
 		int	_fd;
 		int _cgi_pipes[2];
+		struct sockaddr_in _addr;
 		//Check if we need pointers here or not
 		Request*	_request;
 		Response*	_response;
