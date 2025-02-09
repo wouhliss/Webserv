@@ -26,6 +26,7 @@ class Request
 		const std::string &getBuffer(void) const;
 		const std::string &getLastLine(void) const;
 		const std::string &getMethod(void) const;
+		uint8_t getMethodBit(void) const;
 		const std::string &getUri(void) const;
 		const std::string &getHttpVersion(void) const;
 		const std::map<std::string, std::string> &getHeaders(void) const;

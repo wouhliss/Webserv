@@ -6,11 +6,10 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:24:48 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/01 15:21:05 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:44:27 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
 #ifndef __SERVER_HPP__
 #define __SERVER_HPP__
 
@@ -41,8 +40,6 @@ public:
 	void setDefaultFile(const std::string &value);
 	void setCgiBin(const std::string &value);
 
-	void addNewClient(int fd);
-
 	std::vector<Location> &getLocations(void);
 	std::map<int, std::string> &getErrorPages(void);
 	std::string &getHostname(void);
@@ -53,6 +50,7 @@ public:
 	std::string &getDefaultFile(void);
 	std::string &getCgiBin(void);
 	std::map<std::string, std::string> &getCgiExtensions(void);
+	int getSocket(void) const;
 
 	void initSocket(void);
 	

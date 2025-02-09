@@ -1,14 +1,13 @@
-#pragma once
-
 #ifndef __CLIENT_HPP__
 #define __CLIENT_HPP__
 
 #include <webserv.hpp>
 
-Class Request;
-Class Response;
+class Server;
+class Request;
+class Response;
 
-Class Client
+class Client
 {
 	public:
 		Client();
@@ -18,10 +17,15 @@ Class Client
 		Client &operator=(const Client &copy);
 
 		void setFd(const int fd);
-		void &getFd(void);
-		Request &getRequest(void);
+		void setServer(Server *server);
 
-		void readRequest(std::string &buffer);
+		int  getFd(void);
+		Request* getRequest(void);
+		Response* getResponse(void);
+
+
+
+		void readRequest();
 		void processRequest();
 		void sendResponse();
 
@@ -33,6 +37,6 @@ Class Client
 		Request*	_request;
 		Response*	_response;
 		Server*		_server;
-}
+};
 
 #endif

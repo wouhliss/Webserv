@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Utils.cpp                                          :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 17:16:00 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 18:24:00 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <webserv.hpp>
+#include <utils.hpp>
 
 bool check_extension(const std::string &str)
 {
@@ -190,12 +190,14 @@ std::string generateDirectorylisting(const std::string full_path)
 }
 
 //get pages that will return an error or not
-std::string isAnErrorResponse(const int error_number)
+bool isAnErrorResponse(const std::string error_number)
 {
-	if (error_number == 0 
-		|| (error_number >= 200 && error_number <= 204)
-		|| (error_number >= 301 && error_number <= 302)
-		|| error_number == 401)
+	int error_code = std::atoi(error_number.c_str());
+	
+	if (error_code == 0 
+		|| (error_code >= 200 && error_code <= 204)
+		|| (error_code >= 301 && error_code <= 302)
+		|| error_code == 401)
 		return false;
 	return true;
 }
@@ -212,7 +214,7 @@ std::string &ltrim(std::string &s)
 	return s;
 }
 
-std::string &trim_spaces(std::string &s)
+std::string trim_spaces(std::string &s)
 {
 	return ltrim(rtrim(s));
 }

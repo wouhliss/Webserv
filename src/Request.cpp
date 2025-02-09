@@ -19,7 +19,6 @@ Request::Request(const Request &request)
 	_is_complete = request._is_complete;
 	_is_valid = request._is_valid;
 	_parsing_state = request._parsing_state;
-	_is_directory = request._is_directory;
 	_full_path = request._full_path;
 }
 
@@ -39,7 +38,6 @@ Request &Request::operator=(const Request &copy)
 	_is_complete = copy._is_complete;
 	_is_valid = copy._is_valid;
 	_parsing_state = copy._parsing_state;
-	_is_directory = copy._is_directory;
 	_full_path = copy._full_path;
 	return *this;
 }
@@ -59,6 +57,17 @@ const std::string &Request::getLastLine(void) const
 const std::string &Request::getMethod(void) const
 {
 	return _method;
+}
+
+uint8_t Request::getMethodBit(void) const
+{
+	if (_method == "GET")
+		return GET_BIT;
+	else if (_method == "POST")
+		return POST_BIT;
+	else if (_method == "DELETE")
+		return DELETE_BIT;
+	return 0;
 }
 
 const std::string &Request::getUri(void) const
@@ -195,7 +204,7 @@ bool Request::parseHeaders(std::string data)
 //true if body is complete, false otherwise
 bool Request::parseBody(std::string data)
 {
-	int content_length = std::stoi(_headers["Content-Length"]);
+	size_t content_length = std::stoi(_headers["Content-Length"]);
 
 	_body += data;
 
@@ -216,7 +225,7 @@ void Request::readData(std::string data)
 	if (_buffer.empty() && data == CRLF)
 		return;
 	//if buffer is empty and data is empty and request does not contain double CRLF, request is invalid
-	if (_last_line.empty() && data.empty() && _request.find(DOUBLECRLF) == std::string::npos)
+	if (_last_line.empty() && data.empty() && _buffer.find(DOUBLECRLF) == std::string::npos)
 	{
 		setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
 		return;
@@ -259,7 +268,7 @@ void Request::readData(std::string data)
 		//otherwise we have a complete header line
 		else if (_parsing_state == REQUEST_HEADERS)
 		{
-			if (parseHeaders(data.substr(0, pos) == false))
+			if (parseHeaders(data.substr(0, pos)) == false)
 			{
 				setRequestValidity(HTTP_ERROR_BAD_REQUEST, true);
 				return;

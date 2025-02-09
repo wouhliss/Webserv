@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 17:06:54 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:36:50 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ volatile sig_atomic_t loop = 1;
 
 void handle_clients(std::vector<Server> &servers)
 {
-	Client &client;
+	Client *client;
 	
 	//loop through al servers to check if they have a client
 	//for each client, read or write message depending of the state of the request
@@ -29,15 +29,15 @@ void handle_clients(std::vector<Server> &servers)
 	{
 		for (std::vector<Client>::iterator it2 = it->clients.begin(); it2 != it->clients.end(); ++it2)
 		{
-			client = *it2;
-			if (FD_ISSET(client.getSocket(), &read_fds))
+			client = &(*it2);
+			if (FD_ISSET(client->getFd(), &read_fds))
 			{
 				//if the request is ready to be read, we can read it
-				if (!client.getRequest()->isComplete())
-					client.readRequest(buffer);
+				if (!client->getRequest()->isComplete())
+					client->readRequest();
 			}
-			else if (FD_ISSET(client.getSocket(), &write_fds))
-				client.sendResponse();
+			else if (FD_ISSET(client->getFd(), &write_fds))
+				client->sendResponse();
 		}
 	}
 	
@@ -158,21 +158,21 @@ int main(int argc, char **argv)
 	{
 		std::vector<Server> servers = Server::parseConfigFile(filename);
 
-		FD_ZERO(&current_fds);
-		for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
-		{
-			std::cout << it->getServerName() << '\n'
-					  << it->getHostname() << '\n'
-					  << it->getPort() << '\n'
-					  << std::endl;
+		// FD_ZERO(&current_fds);
+		// for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); ++it)
+		// {
+		// 	std::cout << it->getServerName() << '\n'
+		// 			  << it->getHostname() << '\n'
+		// 			  << it->getPort() << '\n'
+		// 			  << std::endl;
 
-			it->initSocket();
-		}
-		signal(SIGINT, siginthandle);
-		while (loop)
-		{
-			loop_handle(servers);
-		}
+		// 	it->initSocket();
+		// }
+		// signal(SIGINT, siginthandle);
+		// while (loop)
+		// {
+		// 	loop_handle(servers);
+		// }
 	}
 	catch (std::exception &e)
 	{

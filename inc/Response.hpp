@@ -22,9 +22,11 @@ class Response
 		void setServer(Server *server);
 		void setIsDirectory(bool is_directory);
 		void setHTTPVersion(const std::string &http_version);
-		void setStatusCode(int status_code);
+		void setStatusCode(std::string status_code);
 		void setStatusMessage(const std::string &status_message);
 		void setHeaders(const std::string &headers);
+
+		std::string getHeaders() const;
 
 		void handleGET();
 		void handlePOST();
@@ -32,14 +34,14 @@ class Response
 
 		void prepareResponse();
 		void defineContentType();
-		void defineStatusMessage(const int status_number);
+		void defineStatusMessage(const std::string status_number);
 		void defineResponseHeaders();
 		void getFileContent();
 	
 	private:
 		Server 		*_server;
 		std::string _buffer;
-		int			 _status_code;
+		std::string	 _status_code;
 		std::string _status_message;
 		std::string _headers;
 		std::string _body;
@@ -49,6 +51,6 @@ class Response
 		std::string _content_type;
 		std::string _http_version;
 		bool _is_directory;
-}
+};
 
 #endif

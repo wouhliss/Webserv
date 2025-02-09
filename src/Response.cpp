@@ -2,7 +2,7 @@
 
 Response::Response()
 {
-	_is_complete = false;
+	is_complete = false;
 }
 
 Response::Response(const Response &response)
@@ -11,7 +11,7 @@ Response::Response(const Response &response)
 	_status_message = response._status_message;
 	_headers = response._headers;
 	_body = response._body;
-	_is_complete = response._is_complete;
+	is_complete = response.is_complete;
 }
 
 Response::~Response()
@@ -24,7 +24,7 @@ Response &Response::operator=(const Response &copy)
 	_status_message = copy._status_message;
 	_headers = copy._headers;
 	_body = copy._body;
-	_is_complete = copy._is_complete;
+	is_complete = copy.is_complete;
 	return *this;
 }
 
@@ -58,7 +58,7 @@ void Response::setHTTPVersion(const std::string &http_version)
 	_http_version = http_version;
 }
 
-void Response::setStatusCode(int status_code)
+void Response::setStatusCode(std::string status_code)
 {
 	_status_code = status_code;
 }
@@ -73,7 +73,7 @@ void Response::setHeaders(const std::string &headers)
 	_headers = headers;
 }
 
-void Response::getHeaders(void)
+std::string Response::getHeaders(void) const
 {
 	return _headers;
 }
@@ -84,7 +84,7 @@ void Response::handleGET()
 {
 	if (_is_directory == true)
 	{
-		_body = generateDirectoryListing(_full_path);
+		_body = generateDirectorylisting(_full_path);
 		_status_code = "200";
 	}
 	else
@@ -137,9 +137,9 @@ void Response::getFileContent()
 void Response::prepareResponse()
 {
 	defineContentType();
-	defineStatusMessage();
+	defineStatusMessage(_status_code);
 	//build status line : status-line = HTTP-version SP status-code SP [ reason-phrase ]
-	_buffer = "HTTP/1.1" + " " + _status_code + " " + _status_message + CRLF;
+	_buffer = "HTTP/1.1 " + _status_code + " " + _status_message + CRLF;
 
 	//set all necessary headers
 	defineResponseHeaders();
@@ -262,45 +262,47 @@ void Response::defineContentType()
 	}
 }
 
-void Response::defineStatusMessage(const int status_number)
+void Response::defineStatusMessage(const std::string status_number)
 {
-	if (status_number == 200)
+	int status_code = std::stoi(status_number);
+
+	if (status_code == 200)
 		_status_message = "OK";
-	else if (status_number == 201)
+	else if (status_code == 201)
 		_status_message = "Created";
-	else if (status_number == 202)
+	else if (status_code == 202)
 		_status_message = "Accepted";
-	else if (status_number == 204)
+	else if (status_code == 204)
 		_status_message = "No Content";
-	else if (status_number == 301)
+	else if (status_code == 301)
 		_status_message = "Moved Permanently";
-	else if (status_number == 302)
+	else if (status_code == 302)
 		_status_message = "Found";
-	else if (status_number == 303)
+	else if (status_code == 303)
 		_status_message = "See Other";
-	else if (status_number == 304)
+	else if (status_code == 304)
 		_status_message = "Not Modified";
-	else if (status_number == 400)
+	else if (status_code == 400)
 		_status_message = "Bad Request";
-	else if (status_number == 401)
+	else if (status_code == 401)
 		_status_message = "Unauthorized";
-	else if (status_number == 403)
+	else if (status_code == 403)
 		_status_message = "Forbidden";
-	else if (status_number == 404)
+	else if (status_code == 404)
 		_status_message = "Not Found";
-	else if (status_number == 405)
+	else if (status_code == 405)
 		_status_message = "Method Not Allowed";
-	else if (status_number == 500)
+	else if (status_code == 500)
 		_status_message = "Internal Server Error";
-	else if (status_number == 501)
+	else if (status_code == 501)
 		_status_message = "Not Implemented";
-	else if (status_number == 502)
+	else if (status_code == 502)
 		_status_message = "Bad Gateway";
-	else if (status_number == 503)
+	else if (status_code == 503)
 		_status_message = "Service Unavailable";
-	else if (status_number == 504)
+	else if (status_code == 504)
 		_status_message = "Gateway Timeout";
-	else if (status_number == 505)
+	else if (status_code == 505)
 		_status_message = "HTTP Version Not Supported";
 	else
 		_status_message = "Unknown Status";
@@ -308,18 +310,18 @@ void Response::defineStatusMessage(const int status_number)
 
 void Response::defineResponseHeaders()
 {
-	_headers += "Server: " + _server->getName() + CRLF;
+	_headers += "Server: " + _server->getServerName() + CRLF;
 	_headers += "Date: " + getCurrentDate() + CRLF;
 	if (_status_code == "301" || _status_code == "302")
 	{
 		_headers += "Location: " + _redirection + CRLF;
-		_headers += "Content-Length: 0" + CRLF;
+		_headers += std::string("Content-Length: 0") + CRLF;
 	}
 	else
 	{
 		_headers += "Content-Type: " + _content_type + CRLF;
 		_headers += "Content-Length: " + std::to_string(_body.size()) + CRLF;
-		//_headers += "Connection: close" + CRLF;
+		//_headers += std::string("Connection: close") + CRLF;
 	}
 	_headers += CRLF;
 }

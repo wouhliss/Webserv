@@ -49,16 +49,36 @@ Client &Client::operator=(const Client &copy)
 	return *this;
 }
 
-Request& Client::getRequest()
+void Client::setFd(const int fd)
+{
+	_fd = fd;
+}
+
+void Client::setServer(Server *server)
+{
+	_server = server;
+}
+
+int Client::getFd()
+{
+	return _fd;
+}
+
+Request *Client::getRequest()
 {
 	return _request;
 }
 
-void Client::readRequest(std::string &buffer)
+Response *Client::getResponse()
+{
+	return _response;
+}
+
+void Client::readRequest()
 {
 	char buffer[BUFFER_SIZE + 1];
 	int bytes_received;
-	int client_fd = client.getFd();
+	int client_fd = _fd;
 
 	bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
 	if (bytes_received <= 0)
@@ -70,9 +90,9 @@ void Client::readRequest(std::string &buffer)
 		return;
 	}
 	buffer[bytes_received] = '\0';
-	client->_request->readData(buffer);
-	if (client->_request->isComplete())
-		client->processRequest(server);
+	_request->readData(buffer);
+	if (_request->isComplete())
+		processRequest();
 }
 
 //handle the whole request, once it is complete, by filling response object and treating the request on the server side
@@ -84,17 +104,18 @@ void Client::processRequest()
 	//check if the request is valid
 	if (_request->getRequestValidity() != 0)
 	{
-		_response->setStatusCode(_request->getRequestValidity());
+		std::string error_number = std::to_string(_request->getRequestValidity());
+		_response->setStatusCode(error_number);
 		return;
 	}
 
 	//get full path
-	std::string full_path = _server.getRoot() + extractPathFromURI(_request->getUri());
+	std::string full_path = _server->getRoot() + extractPathFromURI(_request->getUri());
 
 	//check for location properties
 	std::string location_path;
 	size_t pos;
-	for (std::vector<Location>::iterator it = _server.getLocations().begin(); it != _server.getLocations().end(); ++it)
+	for (std::vector<Location>::iterator it = _server->getLocations().begin(); it != _server->getLocations().end(); ++it)
 	{
 		location_path = extractPathFromURI(_request->getUri());
 		//we check if location value ends with a /, if yes we only keep the last / of location_path
@@ -110,17 +131,17 @@ void Client::processRequest()
 		if (location_path == (*it).getPath())
 		{
 			//this is a redirection, we handle it
-			if ((*it).getRedirection().empty() == false)
+			if ((*it).getRedirect().empty() == false)
 			{
-					_response->setStatusCode(301);
-					_response->setRedirection((*it).getRedirection());
+					_response->setStatusCode("301");
+					_response->setRedirection((*it).getRedirect());
 					return;
 			}
 
 			//check if the method is allowed
-			if (((*it).getAllowedMethods() & _request->getMethod()) == 0)
+			if (((*it).getAllowedMethods() & _request->getMethodBit()) == 0)
 			{
-				_response->setStatusCode(405);
+				_response->setStatusCode("405");
 				return;
 			}
 			//check if the request is a directory
@@ -136,7 +157,7 @@ void Client::processRequest()
 						full_path += (*it).getIndex();
 					else
 					{
-						_response->setStatusCode(403);
+						_response->setStatusCode("403");
 						return;
 					}
 				}
@@ -145,13 +166,13 @@ void Client::processRequest()
 		}
 	}
 
-	_respone->setFullPath(full_path);
+	_response->setFullPath(full_path);
 	_response->setIsDirectory(isDirectory(full_path));
 
 	//check if the file exists
-	if (fileExists(full_path) == false)
+	if (checkPathExists(full_path) == false)
 	{
-		_response->setStatusCode(404);
+		_response->setStatusCode("404");
 		return;
 	}
 
@@ -162,13 +183,13 @@ void Client::processRequest()
 
 	//specific method handlers
 	if (_request->getMethod() == "GET")
-		_response.handleGet();
+		_response->handleGET();
 	else if (_request->getMethod() == "POST")
-		_response.handlePost();
+		_response->handlePOST();
 	else if (_request->getMethod() == "DELETE")
-		_response.handleDelete();
+		_response->handleDELETE();
 	else
-		_response->setStatusCode(405);
+		_response->setStatusCode("405");
 
 	return;
 }
@@ -177,13 +198,13 @@ void Client::sendResponse()
 {
 	//send the response
 	//check if the response is being written, then prepare response and set it up for writing
-	if (!_response->isBeingWritten())
+	if (!_response->is_being_written)
 	{
-		client->_response->prepareResponse();
-		client->_response->is_being_written = true;
+		_response->prepareResponse();
+		_response->is_being_written = true;
 	}
 
-	if (client->_response->is_being_written == true)
+	if (_response->is_being_written == true)
 	{
 		//write response
 		//if write is complete, we clear the response and request and reset them

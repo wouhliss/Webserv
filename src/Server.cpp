@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/01 15:21:30 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:44:34 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,11 @@ Server &Server::operator=(const Server &copy)
 	_cgibin = copy._cgibin;
 	_sockfd = copy._sockfd;
 	return (*this);
+}
+
+int Server::getSocket(void) const
+{
+	return (_sockfd);
 }
 
 void Server::initSocket(void)
@@ -146,15 +151,6 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 
 	return (servers);
 }
-
-
-void Server::addNewClient(int fd)
-{
-	Client *client = new Client(fd);
-	client->setServer(this);
-	_clients.push_back(client);
-}
-
 
 //Other functions
 

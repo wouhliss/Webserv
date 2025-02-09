@@ -6,11 +6,10 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:50:59 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/26 17:16:00 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 17:24:31 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
 #ifndef __LOCATION_HPP__
 #define __LOCATION_HPP__
 

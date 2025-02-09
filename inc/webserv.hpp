@@ -6,11 +6,10 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 17:15:33 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 18:37:15 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
 #ifndef __WEBSERV_HPP__
 #define __WEBSERV_HPP__
 
@@ -35,12 +34,15 @@
 #include <signal.h>
 // #include <linux/limits.h>
 #include <fcntl.h>
+#include <dirent.h>
+#include <string.h>
 
 #include <Server.hpp>
 #include <Location.hpp>
 #include <Client.hpp>
 #include <Request.hpp>
 #include <Response.hpp>
+#include <utils.hpp>
 
 #define BOLD "\033[1m"
 #define ITALIC "\033[3m"
@@ -55,23 +57,18 @@
 #define BUFFER_SIZE 4096
 #define MAX_CONNECTIONS 1000
 
+#define GET_BIT 0x01
+#define POST_BIT 0x02
+#define DELETE_BIT 0x04
+
 #define CRLF "\r\n"
 #define DOUBLECRLF "\r\n\r\n"
 
 #define HTTP_ERROR_BAD_REQUEST 400
 
-#define SSTR(x) static_cast<std::ostringstream &>(           \
-					(std::ostringstream() << std::dec << x)) \
-					.str()
-
 class Server;
-
-typedef struct ParserBlock
-{
-	bool server;
-	bool error;
-	bool location;
-} t_parser_block;
+class Client;
+typedef struct ParserBlock t_parser_block;
 
 bool check_extension(const std::string &str);
 void parseLine(const std::string &line, Server &current_server, t_parser_block &parser_position);
