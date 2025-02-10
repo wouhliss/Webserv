@@ -1,5 +1,5 @@
 todo: 
-  - compiler 
+  - gerer connexions / deconnexions clients 
   - handle (get, delete)
   - write
   - check for reading / writing method, weither with revc / send or write / send

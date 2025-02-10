@@ -26,8 +26,8 @@ Client::Client(const Client &client)
 	_fd = client._fd;
 	_cgi_pipes[0] = client._cgi_pipes[0];
 	_cgi_pipes[1] = client._cgi_pipes[1];
-	_request = client._request;
-	_response = client._response;
+	_request = new Request(*(client._request));
+	_response = new Response(*(client._response));
 }
 
 Client::~Client()
@@ -81,7 +81,7 @@ void Client::readRequest()
 	int client_fd = _fd;
 
 	bytes_received = recv(client_fd, buffer, sizeof(buffer), 0);
-	if (bytes_received <= 0)
+	if (bytes_received < 0)
 	{
 		FD_CLR(client_fd, &current_fds);
 		if (close(client_fd) < 0)
@@ -89,10 +89,23 @@ void Client::readRequest()
 		fd_to_sockfd.erase(client_fd);
 		return;
 	}
+	else if (bytes_received == 0)
+	{
+		FD_CLR(client_fd, &current_fds);
+		if (close(client_fd) < 0)
+			throw std::runtime_error("Error: Could not close socket");
+		std::cout << "Client " << client_fd << " disconnected" << std::endl;
+		fd_to_sockfd.erase(client_fd);
+		return;
+	}
+
 	buffer[bytes_received] = '\0';
-	_request->readData(buffer);
-	if (_request->isComplete())
-		processRequest();
+	// if (_request->isComplete())
+	// {
+	// 	_request->readData(buffer);
+	// 	if (_request->isComplete())
+	// 		processRequest();
+	// }
 }
 
 //handle the whole request, once it is complete, by filling response object and treating the request on the server side

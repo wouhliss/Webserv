@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 18:24:00 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 23:46:14 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void parseServerBlock(const std::string &key, const std::string &value, Server &
 		current_server.setRoot(value);
 	else if (key == "entry_file")
 		current_server.setDefaultFile(value);
-	else if (key == "cgi_bin")
+	else if (key == "cgi-bin")
 		current_server.setCgiBin(value);
 	else if (key == "cgi")
 	{

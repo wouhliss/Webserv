@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:01 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 18:37:15 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/09 23:58:45 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <string.h>
+#include <arpa/inet.h>  // For inet_ntoa (Linux/macOS)
 
 #include <Server.hpp>
 #include <Location.hpp>
