@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/10 15:20:11 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/10 18:45:23 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,15 +53,15 @@ void check_new_clients(std::vector<Server> &servers)
 			new_fd = accept(it->getSocket(), (struct sockaddr *)&new_addr, &new_addrlen);
 			if (new_fd < 0)
 				return ;
+			fcntl(new_fd, F_SETFL, O_NONBLOCK);
 			FD_SET(new_fd, &current_fds);
 			if (new_fd > max_fd)
 				max_fd = new_fd;
 
-			std::cout << "On ajoute un client" << std::endl;
 			it->clients.push_back(Client(new_fd, new_addr));
 			fd_to_sockfd[new_fd] = it->getSocket();
 
-			std::cout << GREEN << "New connection from " << inet_ntoa(new_addr.sin_addr) << ":" << ntohs(new_addr.sin_port) << RESET << std::endl;
+			std::cout << GREEN << "New connection from " << inet_ntoa(new_addr.sin_addr) << ":" << ntohs(new_addr.sin_port) << ", client " << new_fd << RESET << std::endl;
 		}
 	}
 }
@@ -87,7 +87,7 @@ void loop_handle(std::vector<Server> &servers)
 		return ;
 
 	check_new_clients(servers);	
-	// handle_clients(servers);
+	handle_clients(servers);
 }
 
 int main(int argc, char **argv)

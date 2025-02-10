@@ -1,5 +1,6 @@
 todo: 
   - gerer connexions / deconnexions clients 
+    - print correct ip on deconnexions
   - handle (get, delete)
   - write
   - check for reading / writing method, weither with revc / send or write / send

@@ -94,12 +94,15 @@ void Client::readRequest()
 		FD_CLR(client_fd, &current_fds);
 		if (close(client_fd) < 0)
 			throw std::runtime_error("Error: Could not close socket");
-		std::cout << "Client " << client_fd << " disconnected" << std::endl;
+		std::cout << GREEN << "Client " << client_fd << " disconnected" << RESET << std::endl;
 		fd_to_sockfd.erase(client_fd);
 		return;
 	}
 
 	buffer[bytes_received] = '\0';
+
+	std::cout << GREEN << "Message received by client " << client_fd << " : " << RESET << buffer << std::endl;
+
 	// if (_request->isComplete())
 	// {
 	// 	_request->readData(buffer);
