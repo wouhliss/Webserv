@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/10 18:45:23 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/11 14:13:26 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ void check_new_clients(std::vector<Server> &servers)
 			it->clients.push_back(Client(new_fd, new_addr));
 			fd_to_sockfd[new_fd] = it->getSocket();
 
-			std::cout << GREEN << "New connection from " << inet_ntoa(new_addr.sin_addr) << ":" << ntohs(new_addr.sin_port) << ", client " << new_fd << RESET << std::endl;
+			std::cout << GREEN << "New connection from " << inet_ntoa(new_addr.sin_addr) << ":" << ntohs(new_addr.sin_port) << ": Client " << new_fd << RESET << std::endl;
 		}
 	}
 }
