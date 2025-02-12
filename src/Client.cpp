@@ -100,12 +100,30 @@ void Client::readRequest()
 	}
 
 	buffer[bytes_received] = '\0';
-	// if (_request->isComplete())
-	// {
-	// 	_request->readData(buffer);
-	// 	if (_request->isComplete())
-	// 		processRequest();
-	// }
+	if (!_request->isComplete())
+	{
+		_request->readData(buffer);
+		if (_request->isComplete())
+		{
+			//debug stuff
+			std::cout << "Raw buffer : " << _request->getBuffer() << std::endl;
+			std::cout << "Request complete" << std::endl;
+			std::cout << "Full buffer : " << _request->getBuffer() << std::endl;
+			std::cout << "Method : " << _request->getMethod() << std::endl;
+			std::cout << "URI : " << _request->getUri() << std::endl;
+			std::cout << "HTTP version : " << _request->getHttpVersion() << std::endl;
+			std::cout << "Body : " << _request->getBody() << std::endl;
+			std::cout << "Headers : " << std::endl;
+			for (std::map<std::string, std::string>::iterator it = _request->getHeaders().begin(); it != _request->getHeaders().end(); ++it)
+				std::cout << it->first << ": " << it->second << std::endl;
+			std::cout << "Request validity : " << _request->getRequestValidity() << std::endl;
+			delete _request;
+			_request = new Request();
+
+
+			// processRequest();
+		}
+	}
 }
 
 //handle the whole request, once it is complete, by filling response object and treating the request on the server side
@@ -121,6 +139,8 @@ void Client::processRequest()
 		_response->setStatusCode(error_number);
 		return;
 	}
+
+	//check if request is complete (first line and headers)
 
 	//get full path
 	std::string full_path = _server->getRoot() + extractPathFromURI(_request->getUri());

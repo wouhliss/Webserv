@@ -80,7 +80,7 @@ const std::string &Request::getHttpVersion(void) const
 	return _http_version;
 }
 
-const std::map<std::string, std::string> &Request::getHeaders(void) const
+std::map<std::string, std::string> &Request::getHeaders(void)
 {
 	return _headers;
 }
@@ -139,6 +139,8 @@ void Request::setRequestValidity(int value, bool is_complete)
 //A request-line begins with a method token, followed by a single space (SP), the request-target, and another single space (SP), and ends with the protocol version.
 bool Request::parseFirstLine(std::string line)
 {
+	std::cout << "Parsing first line, content = " << line << std::endl;
+
 	size_t pos, pos2 = 0;
 
 	//get the method
@@ -150,8 +152,9 @@ bool Request::parseFirstLine(std::string line)
 		return false;
 	_method = line.substr(0, pos);
 
+
 	//check there is exactly one space after the method
-	if (line[pos + 1] != ' ')
+	if (line[pos + 1] == ' ')
 		return false;
 
 	//get the uri
@@ -161,7 +164,7 @@ bool Request::parseFirstLine(std::string line)
 	_uri = line.substr(pos + 1, pos2 - pos - 1);
 
 	//check there is exactly one space after the uri
-	if (line[pos2 + 1] != ' ')
+	if (line[pos2 + 1] == ' ')
 		return false;
 
 	//check if http version is valid and exists
@@ -235,12 +238,11 @@ void Request::readData(std::string data)
 	data = _last_line + data;
 	_last_line.clear();
 
+
 	size_t pos = 0;
-	//we read data line by line, demarcated by \r\n
+	//we read data line by line, separated by \r\n
 	while ((pos = data.find(CRLF)) != std::string::npos)
 	{
-		//find a way to handle errors if message is chunked the wrong way
-
 		//if the request buffer is empty, we parse the first line of the request
 		if (_buffer.empty() && _parsing_state == REQUEST_FIRST_LINE)
 		{
@@ -250,6 +252,9 @@ void Request::readData(std::string data)
 				return;
 			}
 			_parsing_state = REQUEST_HEADERS;
+			//temp debug exit
+			setRequestValidity(4000, true);
+			return;
 		}
 		//we search for a double CRLF, either cropped or not, to check end of headers
 		else if (_parsing_state == REQUEST_HEADERS &&

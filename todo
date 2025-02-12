@@ -1,7 +1,6 @@
 todo: 
-  - write back to clients
   - handle (get, delete)
-  - check for reading / writing method, weither with revc / send or write / send
+  - write back to clients
   - post
   - cgi 
     - for get 
