@@ -11,7 +11,7 @@ class Client
 {
 	public:
 		Client();
-		Client(int fd, struct sockaddr_in addr);
+		Client(int fd, struct sockaddr_in addr, Server *server);
 		Client(const Client &client);
 		~Client();
 		Client &operator=(const Client &copy);
@@ -20,8 +20,10 @@ class Client
 		void setServer(Server *server);
 
 		int  getFd(void);
+		struct sockaddr_in getAddr(void);
 		Request* getRequest(void);
 		Response* getResponse(void);
+		Server* getServer(void);
 
 
 

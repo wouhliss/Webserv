@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:50:59 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 17:24:31 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/13 16:43:42 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ public:
 	~Location();
 
 	void addAllowedMethod(const std::string &value);
-
 	void setPath(const std::string &value);
 	void setRedirect(const std::string &value);
 	void setDirectoryListing(const bool value);

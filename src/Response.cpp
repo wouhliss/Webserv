@@ -78,6 +78,59 @@ std::string Response::getHeaders(void) const
 	return _headers;
 }
 
+std::string Response::getBuffer(void) const
+{
+	return _buffer;
+}
+
+std::string Response::getContentType(void) const
+{
+	return _content_type;
+}
+
+std::string Response::getFullPath(void) const
+{
+	return _full_path;
+}
+
+std::string Response::getURIAttributes(void) const
+{
+	return _uri_attributes;
+}
+
+std::string Response::getRedirection(void) const
+{
+	return _redirection;
+}
+
+std::string Response::getStatusCode(void) const
+{
+	return _status_code;
+}
+
+std::string Response::getStatusMessage(void) const
+{
+	return _status_message;
+}
+
+std::string Response::getBody(void) const
+{
+	return _body;
+}
+
+std::string Response::getHTTPVersion(void) const
+{
+	return _http_version;
+}
+
+bool Response::getIsDirectory(void) const
+{
+	return _is_directory;
+}
+
+
+
+
 //specific handlers for methods
 //assume that the request is valid and has been correctly parsed
 void Response::handleGET()

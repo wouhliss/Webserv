@@ -139,8 +139,6 @@ void Request::setRequestValidity(int value, bool is_complete)
 //A request-line begins with a method token, followed by a single space (SP), the request-target, and another single space (SP), and ends with the protocol version.
 bool Request::parseFirstLine(std::string line)
 {
-	std::cout << "Parsing first line, content = " << line << std::endl;
-
 	size_t pos, pos2 = 0;
 
 	//get the method
@@ -207,6 +205,13 @@ bool Request::parseHeaders(std::string data)
 //true if body is complete, false otherwise
 bool Request::parseBody(std::string data)
 {
+
+	//if content length is not present, we consider the body complete
+	if (_headers.find("Content-Length") == _headers.end())
+	{
+		return true;
+	}
+
 	size_t content_length = std::stoi(_headers["Content-Length"]);
 
 	_body += data;
@@ -252,9 +257,6 @@ void Request::readData(std::string data)
 				return;
 			}
 			_parsing_state = REQUEST_HEADERS;
-			//temp debug exit
-			setRequestValidity(4000, true);
-			return;
 		}
 		//we search for a double CRLF, either cropped or not, to check end of headers
 		else if (_parsing_state == REQUEST_HEADERS &&
@@ -314,6 +316,8 @@ void Request::readData(std::string data)
 			return;
 		}
 	}
+
+	//if message is just a CRLF, check if we store or not
 
 	//request is not complete
 	//we store the remainder of the data in the last line

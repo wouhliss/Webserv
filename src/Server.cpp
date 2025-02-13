@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:26:37 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 17:44:34 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/13 16:26:16 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ std::vector<Server> Server::parseConfigFile(const std::string &filename)
 			parser_position.location = true;
 			parser_position.error = false;
 			servers.back().addLocation();
+			
 			continue;
 		}
 

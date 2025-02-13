@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 16:13:39 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/01/26 17:16:11 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/13 16:55:58 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,17 +22,39 @@ Location::~Location()
 
 void Location::addAllowedMethod(const std::string &value)
 {
-	if (value == "GET")
+
+	_allowed_methods = 0;
+
+	std::string method;
+	std::string copy = value;
+
+	while (copy.size() > 0)
 	{
-		_allowed_methods |= 0b0001;
-	}
-	else if (value == "POST")
-	{
-		_allowed_methods |= 0b0010;
-	}
-	else if (value == "DELETE")
-	{
-		_allowed_methods |= 0b0100;
+		if (copy.find(",") != std::string::npos)
+		{
+			method = copy.substr(0, copy.find(","));
+			copy.erase(0, copy.find(",") + 1);
+		}
+		else
+		{
+			method = copy;
+			copy.clear();
+		}
+
+		method = trim_spaces(method);
+
+		if (method == "GET")
+		{
+			_allowed_methods |= 0x1;
+		}
+		else if (method == "POST")
+		{
+			_allowed_methods |= 0x2;
+		}
+		else if (method == "DELETE")
+		{
+			_allowed_methods |= 0x4;
+		}
 	}
 }
 

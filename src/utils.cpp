@@ -6,11 +6,20 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:20:32 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/09 23:46:14 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/13 16:34:03 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <utils.hpp>
+
+std::string toBinaryString(uint8_t value) {
+    std::string result;
+    // Loop from the most significant bit (7) to the least significant (0)
+    for (int i = 7; i >= 0; --i) {
+        result.push_back((value & (1 << i)) ? '1' : '0');
+    }
+    return result;
+}
 
 bool check_extension(const std::string &str)
 {
@@ -34,7 +43,7 @@ std::string getCurrentDate()
 
 void parseLocationBlock(const std::string &key, const std::string &value, Server &current_server)
 {
-	Location loc = current_server.getLocations().back();
+	Location &loc = current_server.getLocations().back();
 
 	if (key == "path")
 		loc.setPath(value);
@@ -115,8 +124,9 @@ bool isDirectory(const std::string &path)
 
 std::string decodeURI(const std::string &uri)
 {
-	std::string decoded;
+	std::string decoded = "";
 	size_t i = 0;
+	
 	while (i < uri.size())
 	{
 		if (uri[i] == '%')
@@ -134,7 +144,7 @@ std::string decodeURI(const std::string &uri)
 }
 
 std::string extractPathFromURI(const std::string uri)
-{
+{	
 	std::string path = uri;
 	size_t pos = path.find("?");
 	if (pos != std::string::npos)

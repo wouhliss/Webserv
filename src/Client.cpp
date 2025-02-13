@@ -10,7 +10,7 @@ Client::Client()
 	_cgi_pipes[1] = -1;
 }
 
-Client::Client(int fd, struct sockaddr_in addr)
+Client::Client(int fd, struct sockaddr_in addr, Server *server)
 {
 	_request = new Request();
 	_response = new Response();
@@ -19,6 +19,7 @@ Client::Client(int fd, struct sockaddr_in addr)
 	_addr = addr;
 	_cgi_pipes[0] = -1;
 	_cgi_pipes[1] = -1;
+	_server = server;
 }
 
 Client::Client(const Client &client)
@@ -28,6 +29,8 @@ Client::Client(const Client &client)
 	_cgi_pipes[1] = client._cgi_pipes[1];
 	_request = new Request(*(client._request));
 	_response = new Response(*(client._response));
+	_server = client._server;
+	_addr = client._addr;
 }
 
 Client::~Client()
@@ -46,6 +49,8 @@ Client &Client::operator=(const Client &copy)
 	_fd = copy._fd;
 	_cgi_pipes[0] = copy._cgi_pipes[0];
 	_cgi_pipes[1] = copy._cgi_pipes[1];
+	_server = copy._server;
+	_addr = copy._addr;
 	return *this;
 }
 
@@ -57,6 +62,11 @@ void Client::setFd(const int fd)
 void Client::setServer(Server *server)
 {
 	_server = server;
+}
+
+struct sockaddr_in Client::getAddr()
+{
+	return _addr;
 }
 
 int Client::getFd()
@@ -72,6 +82,11 @@ Request *Client::getRequest()
 Response *Client::getResponse()
 {
 	return _response;
+}
+
+Server *Client::getServer()
+{
+	return _server;
 }
 
 void Client::readRequest()
@@ -106,22 +121,35 @@ void Client::readRequest()
 		if (_request->isComplete())
 		{
 			//debug stuff
-			std::cout << "Raw buffer : " << _request->getBuffer() << std::endl;
-			std::cout << "Request complete" << std::endl;
-			std::cout << "Full buffer : " << _request->getBuffer() << std::endl;
-			std::cout << "Method : " << _request->getMethod() << std::endl;
-			std::cout << "URI : " << _request->getUri() << std::endl;
-			std::cout << "HTTP version : " << _request->getHttpVersion() << std::endl;
-			std::cout << "Body : " << _request->getBody() << std::endl;
-			std::cout << "Headers : " << std::endl;
-			for (std::map<std::string, std::string>::iterator it = _request->getHeaders().begin(); it != _request->getHeaders().end(); ++it)
-				std::cout << it->first << ": " << it->second << std::endl;
-			std::cout << "Request validity : " << _request->getRequestValidity() << std::endl;
-			delete _request;
-			_request = new Request();
+				std::cout << "--- Request received ---" << std::endl;
+				std::cout << "Raw buffer : " << _request->getBuffer() << std::endl;
+				std::cout << "Full buffer : " << _request->getBuffer() << std::endl;
+				std::cout << "Method : " << _request->getMethod() << std::endl;
+				std::cout << "URI : " << _request->getUri() << std::endl;
+				std::cout << "HTTP version : " << _request->getHttpVersion() << std::endl;
+				std::cout << "Body : " << _request->getBody() << std::endl;
+				std::cout << "Headers : " << std::endl;
+				for (std::map<std::string, std::string>::iterator it = _request->getHeaders().begin(); it != _request->getHeaders().end(); ++it)
+					std::cout << it->first << ": " << it->second << std::endl;
+				std::cout << "Request validity : " << _request->getRequestValidity() << std::endl;
+				std::cout << "--- End of request, attenpting to generate response ---" << std::endl;
 
+			processRequest();
 
-			// processRequest();
+			//print response for debug
+				std::cout << "--- Response generated---" << std::endl;
+				std::cout << "Status code : " << _response->getStatusCode() << std::endl;
+				std::cout << "Status message : " << _response->getStatusMessage() << std::endl;
+				std::cout << "Headers : " << std::endl;
+				std::cout << _response->getHeaders() << std::endl;
+				std::cout << "Body : " << std::endl;
+				std::cout << _response->getBody() << std::endl;
+				std::cout << "Full path : " << _response->getFullPath() << std::endl;
+				std::cout << "URI attributes : " << _response->getURIAttributes() << std::endl;
+				std::cout << "Redirection : " << _response->getRedirection() << std::endl;
+				std::cout << "Content type : " << _response->getContentType() << std::endl;
+				std::cout << "HTTP version : " << _response->getHTTPVersion() << std::endl;
+				std::cout << "Is directory : " << _response->getIsDirectory() << std::endl;
 		}
 	}
 }
@@ -140,17 +168,27 @@ void Client::processRequest()
 		return;
 	}
 
-	//check if request is complete (first line and headers)
-
 	//get full path
-	std::string full_path = _server->getRoot() + extractPathFromURI(_request->getUri());
+	std::string root_path = _server->getRoot();
+	std::string extracted = extractPathFromURI(_request->getUri());
+	if (root_path.back() == '/' && extracted.front() == '/')
+		extracted.erase(extracted.begin());
+	else if (root_path.back() != '/' && extracted.front() != '/')
+		extracted = "/" + extracted;
+	std::string full_path  = root_path + extracted;
+
+
+	//debug
+	std::cout << "Full path : " << full_path << std::endl;
 
 	//check for location properties
 	std::string location_path;
 	size_t pos;
+
 	for (std::vector<Location>::iterator it = _server->getLocations().begin(); it != _server->getLocations().end(); ++it)
 	{
 		location_path = extractPathFromURI(_request->getUri());
+
 		//we check if location value ends with a /, if yes we only keep the last / of location_path
 		if ((*it).getPath().back() == '/')
 		{
@@ -158,7 +196,6 @@ void Client::processRequest()
 			if (pos != std::string::npos)
 				location_path = location_path.substr(0, pos + 1);
 		}
-
 
 		//a location block exists, we handle it
 		if (location_path == (*it).getPath())
@@ -177,6 +214,7 @@ void Client::processRequest()
 				_response->setStatusCode("405");
 				return;
 			}
+
 			//check if the request is a directory
 			if (isDirectory(full_path))
 			{
@@ -209,8 +247,6 @@ void Client::processRequest()
 		return;
 	}
 
-	//see how we handle directories and default files
-
 	//extract attributes from URI
 	_response->setURIAttributes(extractAttributesFromURI(_request->getUri()));
 
@@ -239,6 +275,28 @@ void Client::sendResponse()
 
 	if (_response->is_being_written == true)
 	{
+		//see to write the response in chunks
+
+		//debug response -----------------------
+		std::string debug_response; 
+		debug_response += "Status code : " + _response->getStatusCode() + "\n";
+		debug_response += "Status message : " + _response->getStatusMessage() + "\n";
+		debug_response += "Headers : " + _response->getHeaders() + "\n";
+		debug_response += "Body : " + _response->getBody() + "\n";
+
+		//copy debug_response to buffer
+		char response_buffer[BUFFER_SIZE];
+		strcpy(response_buffer, debug_response.c_str());
+
+		//send response
+		send(_fd, response_buffer, strlen(response_buffer), 0);
+
+		//close server
+		exit(0);
+		//end of debug response -----------------------
+
+
+
 		//write response
 		//if write is complete, we clear the response and request and reset them
 		//if not, we keep writing until response is complete

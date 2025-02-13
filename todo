@@ -1,6 +1,8 @@
 todo: 
-  - handle (get, delete)
+  - handle methods (get, delete)
   - write back to clients
+    - check proper closing of connections if needed
+    - check if client needs to be removed or not
   - post
   - cgi 
     - for get 

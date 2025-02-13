@@ -27,6 +27,16 @@ class Response
 		void setHeaders(const std::string &headers);
 
 		std::string getHeaders() const;
+		std::string getBuffer() const;
+		std::string getContentType() const;
+		std::string getFullPath() const;
+		std::string getURIAttributes() const;
+		std::string getRedirection() const;
+		std::string getStatusCode() const;
+		std::string getStatusMessage() const;
+		std::string getBody() const;
+		std::string getHTTPVersion() const;
+		bool getIsDirectory() const;
 
 		void handleGET();
 		void handlePOST();

@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/11 14:13:26 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/13 17:03:20 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ void handle_clients(std::vector<Server> &servers)
 		for (std::vector<Client>::iterator it2 = it->clients.begin(); it2 != it->clients.end(); ++it2)
 		{
 			client = &(*it2);
+
 			if (FD_ISSET(client->getFd(), &read_fds))
 					client->readRequest();
-			// else if (FD_ISSET(client->getFd(), &write_fds))
-			// 	client->sendResponse();
+			else if (FD_ISSET(client->getFd(), &write_fds))
+				client->sendResponse();
 		}
 	}
 	
@@ -58,7 +59,7 @@ void check_new_clients(std::vector<Server> &servers)
 			if (new_fd > max_fd)
 				max_fd = new_fd;
 
-			it->clients.push_back(Client(new_fd, new_addr));
+			it->clients.push_back(Client(new_fd, new_addr, &(*it)));
 			fd_to_sockfd[new_fd] = it->getSocket();
 
 			std::cout << GREEN << "New connection from " << inet_ntoa(new_addr.sin_addr) << ":" << ntohs(new_addr.sin_port) << ": Client " << new_fd << RESET << std::endl;
