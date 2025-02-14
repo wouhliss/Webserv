@@ -40,6 +40,7 @@ class Request
 		bool parseHeaders(std::string line);
 		bool parseBody(std::string line);
 
+		void resetRequest(void);
 	private:
 		std::string _buffer;
 		std::string _last_line;

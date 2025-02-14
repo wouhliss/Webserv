@@ -25,8 +25,10 @@ class Response
 		void setStatusCode(std::string status_code);
 		void setStatusMessage(const std::string &status_message);
 		void setHeaders(const std::string &headers);
+		void setBuffer(const std::string &buffer);
 
 		std::string getHeaders() const;
+		std::string getHeaders(const std::string &header) const;
 		std::string getBuffer() const;
 		std::string getContentType() const;
 		std::string getFullPath() const;
@@ -47,11 +49,13 @@ class Response
 		void defineStatusMessage(const std::string status_number);
 		void defineResponseHeaders();
 		void getFileContent();
+
+		void resetResponse();
 	
 	private:
 		Server 		*_server;
 		std::string _buffer;
-		std::string	 _status_code;
+		std::string	_status_code;
 		std::string _status_message;
 		std::string _headers;
 		std::string _body;

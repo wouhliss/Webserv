@@ -6,7 +6,7 @@
 /*   By: vincentfresnais <vincentfresnais@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 15:16:04 by wouhliss          #+#    #+#             */
-/*   Updated: 2025/02/13 17:03:20 by vincentfres      ###   ########.fr       */
+/*   Updated: 2025/02/14 14:25:58 by vincentfres      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void handle_clients(std::vector<Server> &servers)
 
 			if (FD_ISSET(client->getFd(), &read_fds))
 					client->readRequest();
-			else if (FD_ISSET(client->getFd(), &write_fds))
+			else if (FD_ISSET(client->getFd(), &write_fds) && client->getRequest()->isComplete())
 				client->sendResponse();
 		}
 	}

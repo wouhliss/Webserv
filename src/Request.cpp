@@ -128,11 +128,25 @@ void Request::setBody(const std::string &body)
 	_body = body;
 }
 
-
 void Request::setRequestValidity(int value, bool is_complete)
 {
 	_is_valid = value;
 	_is_complete = is_complete;
+}
+
+void Request::resetRequest(void)
+{
+	_buffer.clear();
+	_last_line.clear();
+	_method.clear();
+	_uri.clear();
+	_http_version.clear();
+	_headers.clear();
+	_body.clear();
+	_is_complete = false;
+	_is_valid = 0;
+	_parsing_state = 0;
+	_full_path.clear();
 }
 
 //parse the first line of the request

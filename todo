@@ -1,11 +1,11 @@
 todo: 
-  - handle methods (get, delete)
   - write back to clients
     - check proper closing of connections if needed
     - check if client needs to be removed or not
-  - post
+    - what happens when a client closes the connexion by itself : find a way to detect it
+  - handle methods (get, delete, post)
   - cgi 
     - for get 
     - post
-    - 
   - cookies and edgecases
+  - extensive testing of features

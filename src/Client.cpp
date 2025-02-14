@@ -54,6 +54,11 @@ Client &Client::operator=(const Client &copy)
 	return *this;
 }
 
+bool Client::operator==(const Client &copy) const
+{
+	return (_fd == copy._fd);
+}
+
 void Client::setFd(const int fd)
 {
 	_fd = fd;
@@ -132,24 +137,9 @@ void Client::readRequest()
 				for (std::map<std::string, std::string>::iterator it = _request->getHeaders().begin(); it != _request->getHeaders().end(); ++it)
 					std::cout << it->first << ": " << it->second << std::endl;
 				std::cout << "Request validity : " << _request->getRequestValidity() << std::endl;
-				std::cout << "--- End of request, attenpting to generate response ---" << std::endl;
+				std::cout << "--- End of request, processing it ---" << std::endl;
 
 			processRequest();
-
-			//print response for debug
-				std::cout << "--- Response generated---" << std::endl;
-				std::cout << "Status code : " << _response->getStatusCode() << std::endl;
-				std::cout << "Status message : " << _response->getStatusMessage() << std::endl;
-				std::cout << "Headers : " << std::endl;
-				std::cout << _response->getHeaders() << std::endl;
-				std::cout << "Body : " << std::endl;
-				std::cout << _response->getBody() << std::endl;
-				std::cout << "Full path : " << _response->getFullPath() << std::endl;
-				std::cout << "URI attributes : " << _response->getURIAttributes() << std::endl;
-				std::cout << "Redirection : " << _response->getRedirection() << std::endl;
-				std::cout << "Content type : " << _response->getContentType() << std::endl;
-				std::cout << "HTTP version : " << _response->getHTTPVersion() << std::endl;
-				std::cout << "Is directory : " << _response->getIsDirectory() << std::endl;
 		}
 	}
 }
@@ -189,13 +179,14 @@ void Client::processRequest()
 	{
 		location_path = extractPathFromURI(_request->getUri());
 
-		//we check if location value ends with a /, if yes we only keep the last / of location_path
-		if ((*it).getPath().back() == '/')
-		{
-			pos = location_path.find_last_of('/');
+		//we check if location value ends with a /, location is a directory
+		pos = location_path.find_last_of('/');
 			if (pos != std::string::npos)
 				location_path = location_path.substr(0, pos + 1);
-		}
+		if ((*it).getPath().back() == '/' && location_path.back() != '/')
+			location_path += "/";
+		else if ((*it).getPath().back() != '/' && location_path.back() == '/')
+			location_path.pop_back();
 
 		//a location block exists, we handle it
 		if (location_path == (*it).getPath())
@@ -265,40 +256,75 @@ void Client::processRequest()
 
 void Client::sendResponse()
 {
-	//send the response
+	int	send_ret = 0;
+
 	//check if the response is being written, then prepare response and set it up for writing
 	if (!_response->is_being_written)
 	{
 		_response->prepareResponse();
 		_response->is_being_written = true;
+
+
+		//print response for debug
+			std::cout << "--- Response generated---" << std::endl;
+			std::cout << "Status code : " << _response->getStatusCode() << std::endl;
+			std::cout << "Status message : " << _response->getStatusMessage() << std::endl;
+			std::cout << "Headers : " << std::endl;
+			std::cout << _response->getHeaders() << std::endl;
+			std::cout << "Body : " << std::endl;
+			std::cout << _response->getBody() << std::endl;
+			std::cout << "Full path : " << _response->getFullPath() << std::endl;
+			std::cout << "URI attributes : " << _response->getURIAttributes() << std::endl;
+			std::cout << "Redirection : " << _response->getRedirection() << std::endl;
+			std::cout << "Content type : " << _response->getContentType() << std::endl;
+			std::cout << "HTTP version : " << _response->getHTTPVersion() << std::endl;
+			std::cout << "Is directory : " << _response->getIsDirectory() << std::endl;
 	}
 
+	//we write the response
 	if (_response->is_being_written == true)
 	{
-		//see to write the response in chunks
+		if (_response->getBuffer().length() <= BUFFER_SIZE)
+			send_ret = write(_fd, _response->getBuffer().c_str(), _response->getBuffer().length());
+		else
+			send_ret = write(_fd, _response->getBuffer().c_str(), BUFFER_SIZE);
+	}
 
-		//debug response -----------------------
-		std::string debug_response; 
-		debug_response += "Status code : " + _response->getStatusCode() + "\n";
-		debug_response += "Status message : " + _response->getStatusMessage() + "\n";
-		debug_response += "Headers : " + _response->getHeaders() + "\n";
-		debug_response += "Body : " + _response->getBody() + "\n";
+	//we check return of write
+	if (send_ret < 0)
+	{
+		FD_CLR(_fd, &current_fds);
+		if (close(_fd) < 0)
+			throw std::runtime_error("Error: Could not close socket");
+		std::cout << RED << "Client " << _fd << " : disconnected" << RESET << std::endl;
+		_server->clients.erase(std::remove(_server->clients.begin(), _server->clients.end(), *this), _server->clients.end());
+		fd_to_sockfd.erase(_fd);
+		return;
+	}
+	else if (send_ret == 0 || _response->getBuffer().length() == static_cast<size_t>(send_ret))
+	{
+		_response->is_being_written = false;
+		_response->setBuffer("");
+	}
+	else
+		_response->setBuffer(_response->getBuffer().substr(send_ret));
 
-		//copy debug_response to buffer
-		char response_buffer[BUFFER_SIZE];
-		strcpy(response_buffer, debug_response.c_str());
-
-		//send response
-		send(_fd, response_buffer, strlen(response_buffer), 0);
-
-		//close server
-		exit(0);
-		//end of debug response -----------------------
-
-
-
-		//write response
-		//if write is complete, we clear the response and request and reset them
-		//if not, we keep writing until response is complete
+	//if response is complete, we reset the response and request
+	if (_response->is_being_written == false)
+	{
+		if (_response->getStatusCode() == "400" || _response->getStatusCode() == "500" || _response->getHeaders("Connection") == "close")
+		{
+			FD_CLR(_fd, &current_fds);
+			if (close(_fd) < 0)
+				throw std::runtime_error("Error: Could not close socket");
+			std::cout << GREEN << "Client " << _fd << " : disconnected" << RESET << std::endl;
+			_server->clients.erase(std::remove(_server->clients.begin(), _server->clients.end(), *this), _server->clients.end());
+			fd_to_sockfd.erase(_fd);
+		}
+		else
+		{
+			_request->resetRequest();
+			_response->resetResponse();
+		}
 	}
 }

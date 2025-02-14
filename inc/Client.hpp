@@ -15,6 +15,7 @@ class Client
 		Client(const Client &client);
 		~Client();
 		Client &operator=(const Client &copy);
+		bool 	operator==(const Client &copy) const;
 
 		void setFd(const int fd);
 		void setServer(Server *server);

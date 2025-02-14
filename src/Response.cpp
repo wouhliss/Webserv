@@ -73,9 +73,28 @@ void Response::setHeaders(const std::string &headers)
 	_headers = headers;
 }
 
+void Response::setBuffer(const std::string &buffer)
+{
+	_buffer = buffer;
+}
+
 std::string Response::getHeaders(void) const
 {
 	return _headers;
+}
+
+std::string Response::getHeaders(const std::string &header) const
+{
+	std::string header_value;
+	size_t pos;
+
+	if ((pos = _headers.find(header)) != std::string::npos)
+	{
+		header_value = _headers.substr(pos + header.size() + 2);
+		if ((pos = header_value.find(CRLF)) != std::string::npos)
+			header_value = header_value.substr(0, pos);
+	}
+	return header_value;
 }
 
 std::string Response::getBuffer(void) const
@@ -128,6 +147,20 @@ bool Response::getIsDirectory(void) const
 	return _is_directory;
 }
 
+void Response::resetResponse()
+{
+	_status_code.clear();
+	_status_message.clear();
+	_headers.clear();
+	_body.clear();
+	_full_path.clear();
+	_uri_attributes.clear();
+	_redirection.clear();
+	_content_type.clear();
+	_http_version.clear();
+	is_complete = false;
+	is_being_written = false;
+}
 
 
 
@@ -146,6 +179,10 @@ void Response::handleGET()
 
 void Response::handleDELETE()
 {
+	//debug
+	std::cout << "DELETE : deleting " << _full_path << std::endl;
+	return ;
+
 	//check for authorization header (403 otherwise)
 	//remove the file
 	//500 if error, 204 if success
@@ -190,7 +227,11 @@ void Response::getFileContent()
 void Response::prepareResponse()
 {
 	defineContentType();
+
+	if (_status_code.empty())
+		_status_code = "000";
 	defineStatusMessage(_status_code);
+	
 	//build status line : status-line = HTTP-version SP status-code SP [ reason-phrase ]
 	_buffer = "HTTP/1.1 " + _status_code + " " + _status_message + CRLF;
 
@@ -317,7 +358,16 @@ void Response::defineContentType()
 
 void Response::defineStatusMessage(const std::string status_number)
 {
-	int status_code = std::stoi(status_number);
+	int status_code = 0;
+
+	try {
+		status_code = std::stoi(status_number);
+	}
+	catch (std::exception &e)
+	{
+		_status_message = "Unknown Status";
+		return;
+	}
 
 	if (status_code == 200)
 		_status_message = "OK";
